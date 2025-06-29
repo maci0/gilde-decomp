@@ -74,23 +74,5 @@
 | `cm_ExIterateBuildingData` | `0x10010710` | 85% | High | Command handler for iterating over a building's data. | Iterates through building data and calls a callback. |
 | `cm_ExAllocGraveyard` | `0x10010850` | 80% | Medium | Command handler for allocating a graveyard. | Allocates and initializes a graveyard building. |
 | `cm_ExAllocGraveyardField` | `0x100109d0` | 80% | Medium | Command handler for allocating a graveyard field. | Allocates and initializes a graveyard field within a building. |
-| `cmdt_AllocClientPlayer` | `0x1000d570` | 85% | High | Command handler for allocating a new client player. | Calls `gm_AllocPlayer` to perform the allocation. |
-| `cmdt_ChangePlayerIdentity` | `0x1000d6e0` | 90% | High | Command handler for changing a player's identity. | Calls `gm_ChangePlayerIdentity` to perform the change. |
-| `cmdt_Free` | `0x1000d730` | 85% | High | Command handler for freeing a player or building. | Calls `gm_KillSpieler` or `gm_FreeBuilding`. |
-| `cmdt_SellObjectEx` | `0x1000d930` | 75% | Medium | Command handler for selling an object with extended functionality. | Complex logic for handling various sale scenarios. |
-| `cmdt_ClearStorageSlot` | `0x1000e690` | 85% | High | Command handler for clearing a storage slot. | Calls `handleRemoveObjectFromList`. |
-| `cmdt_ChangePlayerDesire` | `0x1000e9c0` | 85% | High | Command handler for changing a player's desire. | Updates and clamps desire values. |
-| `cm_ExchangeBits` | `0x1000eaa0` | 90% | High | Command handler for exchanging bits between players. | Updates player data based on size and offset. |
-| `cm_ExchangeFloat` | `0x1000eb70` | 90% | High | Command handler for exchanging a float value between players. | Updates player data at a given offset. |
-| `cm_AllocCharacter` | `0x1000f980` | 85% | High | Command handler for allocating a new character. | Calls `gm_AllocPlayer` to create a new character. |
-| `cm_StartCutscene` | `0x1000ff60` | 85% | High | Command handler for starting a cutscene. | Calls `cm_IsCutsceneReady` and sets player flags. |
-| `cm_ZombieCommand` | `0x10010260` | 95% | High | Command handler for zombie-related commands. | Dispatches to sub-handlers based on a command ID. |
-| `cm_AllocGraveyardWorker` | `0x10010310` | 90% | High | Command handler for allocating a graveyard worker. | Calls `handleAllocGraveyardWorker2`. |
-| `cm_GetPlayerAmtId` | `0x10010350` | 90% | High | Command handler for getting a player's "Amt" ID. | Calls `handleGetPlayerAmtId`. |
-| `srv_HandlePlayerCommand` | `0x10010390` | 80% | Medium | Command handler for player-related commands. | Dispatches to sub-handlers based on a command ID. |
-| `cm_ExGetBuildingDataSize` | `0x100104a0` | 90% | High | Command handler for getting the size of a building's data. | Returns the size of a building's data structure. |
-| `cm_ExValidateBuildingData` | `0x10010530` | 90% | High | Command handler for validating a building's data. | Validates specific fields within a building's data structure. |
-| `cm_ExGetBuildingDataPtr` | `0x100105b0` | 90% | High | Command handler for getting a pointer to a building's data. | Returns a pointer to the requested data. |
-| `cm_ExIterateBuildingData` | `0x10010710` | 85% | High | Command handler for iterating over a building's data. | Iterates through building data and calls a callback. |
-| `cm_ExAllocGraveyard` | `0x10010850` | 80% | Medium | Command handler for allocating a graveyard. | Allocates and initializes a graveyard building. |
-| `cm_ExAllocGraveyardField` | `0x100109d0` | 80% | Medium | Command handler for allocating a graveyard field. | Allocates and initializes a graveyard field within a building. |
+| `logEvent` | `0x10002640` | 90% | High | Logs a message to a file, debug output, and/or console. | Game-specific utility function. |
+| `unhandledExceptionHandler` | `0x10002770` | 75% | Medium | Unhandled exception filter that generates a crash dump. | Critical for server stability and debugging. |
