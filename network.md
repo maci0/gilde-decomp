@@ -4,182 +4,321 @@ This document outlines the network protocol used by `server.dll` for communicati
 
 ## Packet Structure
 
-The basic packet structure is as follows:
+All packets share a common header:
 
-| Field | Type | Description |
-|---|---|---|
-| Packet ID | `uint8_t` | The identifier for the packet type. |
-| Payload | `uint8_t[]` | The data associated with the packet. |
+| Offset | Type      | Name      | Description                     |
+|--------|-----------|-----------|---------------------------------|
+| 0x0    | `uint8_t` | packet_id | The identifier for the packet.  |
+| 0x1    | `uint8_t` | size      | The total size of the packet.   |
 
-## Server -> Client Packets
+The server reads the `packet_id` and a `size` field to determine the total length of the incoming command, then reads that many bytes from the socket.
 
-| Packet ID | Name | Description |
-|---|---|---|
-| `0x02` | `CMD_INVALID_COMMAND` | Indicates that the last command sent by the client was invalid. |
-| `0x04` | `CMD_SET_PLAYER_ID` | Assigns a player ID to the client. |
-| `0x08` | `CMD_GAME_DATA_START` | Signals the start of game data transmission. |
-| `0x09` | `CMD_GAME_DATA_CHUNK` | A chunk of game data. |
-| `0x1E` | `CMD_UPDATE_CITIZEN_AGE` | Updates the age of a citizen. |
-| `0x20` | `CMD_SET_GAME_YEAR` | Sets the current game year. |
+---
 
-## Client -> Server Packets
+## Client → Server Packets
 
-| Packet ID | Name | Description |
-|---|---|---|
-| `0x01` | `CMD_ALLOC_BUILDING` | Requests the allocation of a new building. |
-| `0x02` | `CMD_ALLOC_PLAYER` | Requests the allocation of a new player. |
-| `0x06` | `CMD_SELL_OBJECT` | Requests to sell an object. |
-| `0x07` | `CMD_MOVE_OBJECT` | Requests to move an object. |
-| `0x08` | `CMD_PRODUCE_OBJECT` | Requests to produce an object. |
-| `0x0D` | `CMD_CREATE_BUILDING` | Requests to create a building. |
-| `0x0E` | `CMD_EMPLOY_WORKER` | Requests to employ a worker. |
-| `0x0F` | `CMD_KILL_PLAYER` | Requests to kill a player. |
-| `0x11` | `CMD_SET_PLAYER_MONEY` | Requests to set a player's money. |
-| `0x12` | `CMD_SET_PLAYER_TITLE` | Requests to set a player's title. |
-| `0x13` | `CMD_SET_PLAYER_SKILL` | Requests to set a player's skill. |
-| `0x1D` | `CMD_UPDATE_CITIZEN_AGE` | Requests to update a citizen's age. |
-| `0x1E` | `CMD_SET_CITIZEN_DATA` | Requests to set a citizen's data. |
-| `0x5F` | `CMD_LOBBY_GET_PLAYER_LIST` | Requests the list of players in the lobby. |
-| `0x60` | `CMD_LOBBY_SET_PLAYER_READY` | Requests to set the player's ready status. |
-| `0x61` | `CMD_LOBBY_JOIN_GAME` | Requests to join the game from the lobby. |
+These packets are sent from the client to the server to trigger actions and game state changes.
 
-### `CMD_ALLOC_BUILDING` (0x01)
+### **`0x01`**: `CMD_ALLOC_BUILDING`
 
-| Field | Type | Description |
-|---|---|---|
-| `building_type` | `uint8_t` | The type of building to allocate. |
-| `owner_id` | `uint16_t` | The ID of the building's owner. |
-| `unknown` | `uint8_t[108]` | Unknown data. |
+Allocates a new building.
 
-### `CMD_ALLOC_PLAYER` (0x02)
+**Handler:** `cm_ExAllocGebaeude` (0x1000d350)
 
-| Field | Type | Description |
-|---|---|---|
-| `player_type` | `uint8_t` | The type of player to allocate. |
-| `father_id` | `uint32_t` | The ID of the player's father. |
-| `mother_id` | `uint32_t` | The ID of the player's mother. |
-| `player_data` | `uint16_t` | Pointer to the player's data structure. |
-| `building_data` | `uint32_t` | Pointer to the building data. |
-| `gender` | `uint8_t` | The gender of the player. |
-| `age` | `uint8_t` | The age of the player. |
-| `init_type` | `uint8_t` | The initialization type. |
-| `unknown` | `uint8_t[99]` | Unknown data. |
+| Offset | Type       | Name          | Description                      |
+|--------|------------|---------------|----------------------------------|
+| 0x0    | `uint8_t`  | `packet_id`   | `0x01`                           |
+| 0x1    | `uint8_t`  | `size`        | `0x70` (112)                     |
+| 0x2    | `uint16_t` | `building_id` | The ID of the building to create.|
+| 0x4    | `uint32_t` | `player_id`   | The ID of the owner.             |
+| 0x8    | `uint8_t[104]` | `padding`     | Unused.                          |
 
-### `CMD_MOVE_OBJECT` (0x07)
+### **`0x02`**: `CMD_ALLOC_PLAYER`
 
-| Field | Type | Description |
-|---|---|---|
-| `source_container_id` | `uint32_t` | The ID of the source container. |
-| `destination_container_id` | `uint32_t` | The ID of the destination container. |
-| `object_id` | `uint16_t` | The ID of the object to move. |
-| `count` | `uint32_t` | The number of objects to move. |
-| `unknown` | `uint8_t[100]` | Unknown data. |
+Allocates a new player character.
 
-### `CMD_SELL_OBJECT` (0x06)
+**Handler:** `cm_ExAllocSpieler` (0x1000d460)
 
-| Field | Type | Description |
-|---|---|---|
-| `seller_id` | `uint32_t` | The ID of the seller. |
-| `buyer_id` | `uint32_t` | The ID of the buyer. |
-| `object_id` | `uint16_t` | The ID of the object to sell. |
-| `count` | `uint32_t` | The number of objects to sell. |
-| `unknown` | `uint8_t[100]` | Unknown data. |
+| Offset | Type       | Name          | Description                      |
+|--------|------------|---------------|----------------------------------|
+| 0x0    | `uint8_t`  | `packet_id`   | `0x02`                           |
+| 0x1    | `uint8_t`  | `size`        | `0x70` (112)                     |
+| 0x2    | `uint16_t` | `player_id`   | The ID of the player to create.  |
+| 0x4    | `uint32_t` | `father_id`   | The ID of the player's father.   |
+| 0x8    | `uint32_t` | `mother_id`   | The ID of the player's mother.   |
+| 0xC    | `uint16_t` | `player_data` | Pointer to player data.          |
+| 0xE    | `uint32_t` | `building_id` | The ID of the associated building.|
+| 0x12   | `uint8_t`  | `gender`      | The gender of the player.        |
+| 0x13   | `uint8_t`  | `age`         | The age of the player.           |
+| 0x14   | `uint8_t`  | `init_type`   | The initialization type.         |
+| 0x15   | `uint8_t[99]` | `padding`     | Unused.                          |
 
-### `CMD_PRODUCE_OBJECT` (0x08)
+### **`0x06`**: `CMD_SELL_OBJECT`
 
-| Field | Type | Description |
-|---|---|---|
-| `building_id` | `uint32_t` | The ID of the building where the object is produced. |
-| `object_id` | `uint16_t` | The ID of the object to produce. |
-| `count` | `uint32_t` | The number of objects to produce. |
-| `unknown` | `uint8_t[104]` | Unknown data. |
+Sells an object from one container to another.
 
-### `CMD_KILL_PLAYER` (0x0F)
+**Handler:** `cm_ExSellObjekt` (0x1000d930)
 
-| Field | Type | Description |
-|---|---|---|
-| `player_id` | `uint32_t` | The ID of the player to kill. |
-| `cleanup_type` | `uint32_t` | The type of cleanup to perform. |
-| `unknown` | `uint8_t[104]` | Unknown data. |
+| Offset | Type       | Name            | Description                           |
+|--------|------------|-----------------|---------------------------------------|
+| 0x0    | `uint8_t`  | `packet_id`     | `0x06`                                |
+| 0x1    | `uint8_t`  | `size`          | `0x70` (112)                          |
+| 0x2    | `uint32_t` | `seller_id`     | The ID of the selling container.      |
+| 0x6    | `uint32_t` | `buyer_id`      | The ID of the buying container.       |
+| 0xA    | `uint16_t` | `object_id`     | The ID of the object to sell.         |
+| 0xC    | `uint32_t` | `count`         | The number of objects to sell.        |
+| 0x10   | `uint8_t[100]`| `padding`       | Unused.                               |
 
-### `CMD_EMPLOY_WORKER` (0x0E)
+### **`0x07`**: `CMD_MOVE_OBJECT`
 
-| Field | Type | Description |
-|---|---|---|
-| `building_id` | `uint32_t` | The ID of the building where the worker is employed. |
-| `worker_id` | `uint32_t` | The ID of the worker to employ. |
-| `unknown` | `uint8_t[104]` | Unknown data. |
+Moves an object from one container to another.
 
-### `CMD_CREATE_BUILDING` (0x0D)
+**Handler:** `cm_ExMoveObject` (0x1000d8a0)
 
-| Field | Type | Description |
-|---|---|---|
-| `player_id` | `uint32_t` | The ID of the player who is creating the building. |
-| `building_type` | `uint8_t` | The type of building to create. |
-| `unknown` | `uint8_t[107]` | Unknown data. |
+| Offset | Type       | Name            | Description                           |
+|--------|------------|-----------------|---------------------------------------|
+| 0x0    | `uint8_t`  | `packet_id`     | `0x07`                                |
+| 0x1    | `uint8_t`  | `size`          | `0x70` (112)                          |
+| 0x2    | `uint32_t` | `source_id`     | The ID of the source container.       |
+| 0x6    | `uint32_t` | `destination_id`| The ID of the destination container.  |
+| 0xA    | `uint16_t` | `object_id`     | The ID of the object to move.         |
+| 0xC    | `uint32_t` | `count`         | The number of objects to move.        |
+| 0x10   | `uint8_t[100]`| `padding`       | Unused.                               |
 
-### `CMD_SET_PLAYER_MONEY` (0x11)
+### **`0x08`**: `CMD_PRODUCE_OBJECT`
 
-| Field | Type | Description |
-|---|---|---|
-| `player_id` | `uint32_t` | The ID of the player. |
-| `money` | `uint32_t` | The amount of money to set. |
-| `unknown` | `uint8_t[104]` | Unknown data. |
+Produces an object in a building.
 
-### `CMD_SET_PLAYER_TITLE` (0x12)
+**Handler:** `cm_ExProdObjekt` (0x1000e140)
 
-| Field | Type | Description |
-|---|---|---|
-| `player_id` | `uint32_t` | The ID of the player. |
-| `title` | `uint8_t` | The title to set. |
-| `unknown` | `uint8_t[107]` | Unknown data. |
+| Offset | Type       | Name          | Description                           |
+|--------|------------|---------------|---------------------------------------|
+| 0x0    | `uint8_t`  | `packet_id`   | `0x08`                                |
+| 0x1    | `uint8_t`  | `size`        | `0x70` (112)                          |
+| 0x2    | `uint32_t` | `building_id` | The ID of the building.               |
+| 0x6    | `uint16_t` | `object_id`   | The ID of the object to produce.      |
+| 0x8    | `uint32_t` | `count`       | The number of objects to produce.     |
+| 0xC    | `uint8_t[104]`| `padding`     | Unused.                               |
 
-### `CMD_SET_PLAYER_SKILL` (0x13)
+### **`0x0D`**: `CMD_CREATE_BUILDING`
 
-| Field | Type | Description |
-|---|---|---|
-| `player_id` | `uint32_t` | The ID of the player. |
-| `skill` | `uint8_t` | The skill to set. |
-| `value` | `uint8_t` | The value to set the skill to. |
-| `unknown` | `uint8_t[106]` | Unknown data. |
+Creates a new building.
 
-### `CMD_UPDATE_CITIZEN_AGE` (0x1D)
+**Handler:** `cm_CreateBuilding` (0x1000fb30)
 
-| Field | Type | Description |
-|---|---|---|
-| `citizen_id` | `uint32_t` | The ID of the citizen to update. |
-| `days` | `uint32_t` | The number of days to add to the citizen's age. |
-| `months` | `uint32_t` | The number of months to add to the citizen's age. |
-| `years` | `uint32_t` | The number of years to add to the citizen's age. |
-| `unknown` | `uint8_t[92]` | Unknown data. |
+| Offset | Type       | Name            | Description                           |
+|--------|------------|-----------------|---------------------------------------|
+| 0x0    | `uint8_t`  | `packet_id`     | `0x0D`                                |
+| 0x1    | `uint8_t`  | `size`          | `0x70` (112)                          |
+| 0x2    | `uint32_t` | `player_id`     | The ID of the player creating the building. |
+| 0x6    | `uint8_t`  | `building_type` | The type of building to create.       |
+| 0x7    | `uint8_t[107]`| `padding`       | Unused.                               |
 
-### `CMD_SET_CITIZEN_DATA` (0x1E)
+### **`0x0E`**: `CMD_EMPLOY_WORKER`
 
-| Field | Type | Description |
-|---|---|---|
-| `citizen_id` | `uint32_t` | The ID of the citizen to update. |
-| `gender` | `uint8_t` | The gender of the citizen. |
-| `age` | `uint32_t` | The age of the citizen. |
-| `birth_year` | `uint32_t` | The birth year of the citizen. |
-| `unknown` | `uint8_t[95]` | Unknown data. |
+Employs a worker in a building.
 
-### `CMD_LOBBY_GET_PLAYER_LIST` (0x5F)
+**Handler:** `cm_EmployWorker` (0x1000f730)
 
-| Field | Type | Description |
-|---|---|---|
-| `unknown` | `uint8_t[112]` | Unknown data. |
+| Offset | Type       | Name          | Description                           |
+|--------|------------|---------------|---------------------------------------|
+| 0x0    | `uint8_t`  | `packet_id`   | `0x0E`                                |
+| 0x1    | `uint8_t`  | `size`        | `0x70` (112)                          |
+| 0x2    | `uint32_t` | `building_id` | The ID of the building.               |
+| 0x6    | `uint32_t` | `worker_id`   | The ID of the worker to employ.       |
+| 0xA    | `uint8_t[104]`| `padding`     | Unused.                               |
 
-### `CMD_LOBBY_SET_PLAYER_READY` (0x60)
+### **`0x0F`**: `CMD_KILL_PLAYER`
 
-| Field | Type | Description |
-|---|---|---|
-| `player_id` | `uint32_t` | The ID of the player. |
-| `ready_status` | `uint32_t` | The ready status of the player. |
-| `unknown` | `uint8_t[104]` | Unknown data. |
+Kills a player character.
 
-### `CMD_LOBBY_JOIN_GAME` (0x61)
+**Handler:** `cm_KillPlayer` (0x1000f030)
 
-| Field | Type | Description |
-|---|---|---|
-| `player_id` | `uint32_t` | The ID of the player. |
-| `unknown` | `uint8_t[108]` | Unknown data. |
+| Offset | Type       | Name           | Description                           |
+|--------|------------|----------------|---------------------------------------|
+| 0x0    | `uint8_t`  | `packet_id`    | `0x0F`                                |
+| 0x1    | `uint8_t`  | `size`         | `0x70` (112)                          |
+| 0x2    | `uint32_t` | `player_id`    | The ID of the player to kill.         |
+| 0x6    | `uint32_t` | `cleanup_type` | The type of cleanup to perform.       |
+| 0xA    | `uint8_t[104]`| `padding`      | Unused.                               |
+
+### **`0x11`**: `CMD_SET_PLAYER_MONEY`
+
+Sets a player's money.
+
+**Handler:** `cm_SetPlayerMoney` (0x1000ffc0)
+
+| Offset | Type       | Name        | Description                           |
+|--------|------------|-------------|---------------------------------------|
+| 0x0    | `uint8_t`  | `packet_id` | `0x11`                                |
+| 0x1    | `uint8_t`  | `size`      | `0x70` (112)                          |
+| 0x2    | `uint32_t` | `player_id` | The ID of the player.                 |
+| 0x6    | `uint32_t` | `money`     | The amount of money to set.           |
+| 0xA    | `uint8_t[104]`| `padding`   | Unused.                               |
+
+### **`0x12`**: `CMD_SET_PLAYER_TITLE`
+
+Sets a player's title.
+
+**Handler:** `cm_SetPlayerTitle` (0x10010010)
+
+| Offset | Type       | Name        | Description                           |
+|--------|------------|-------------|---------------------------------------|
+| 0x0    | `uint8_t`  | `packet_id` | `0x12`                                |
+| 0x1    | `uint8_t`  | `size`      | `0x70` (112)                          |
+| 0x2    | `uint32_t` | `player_id` | The ID of the player.                 |
+| 0x6    | `uint8_t`  | `title`     | The title to set.                     |
+| 0x7    | `uint8_t[107]`| `padding`   | Unused.                               |
+
+### **`0x13`**: `CMD_SET_PLAYER_SKILL`
+
+Sets a player's skill.
+
+**Handler:** `cm_SetPlayerSkill` (0x100100a0)
+
+| Offset | Type       | Name        | Description                           |
+|--------|------------|-------------|---------------------------------------|
+| 0x0    | `uint8_t`  | `packet_id` | `0x13`                                |
+| 0x1    | `uint8_t`  | `size`      | `0x70` (112)                          |
+| 0x2    | `uint32_t` | `player_id` | The ID of the player.                 |
+| 0x6    | `uint8_t`  | `skill`     | The skill to set.                     |
+| 0x7    | `uint8_t`  | `value`     | The value to set the skill to.        |
+| 0x8    | `uint8_t[106]`| `padding`   | Unused.                               |
+
+### **`0x1D`**: `CMD_UPDATE_CITIZEN_AGE`
+
+Updates a citizen's age.
+
+**Handler:** `sim_UpdateCitizenAge` (0x100155c0)
+
+| Offset | Type       | Name         | Description                           |
+|--------|------------|--------------|---------------------------------------|
+| 0x0    | `uint8_t`  | `packet_id`  | `0x1D`                                |
+| 0x1    | `uint8_t`  | `size`       | `0x70` (112)                          |
+| 0x2    | `uint32_t` | `citizen_id` | The ID of the citizen to update.      |
+| 0x6    | `uint32_t` | `days`       | The number of days to add.            |
+| 0xA    | `uint32_t` | `months`     | The number of months to add.          |
+| 0xE    | `uint32_t` | `years`      | The number of years to add.           |
+| 0x12   | `uint8_t[92]`| `padding`    | Unused.                               |
+
+### **`0x1E`**: `CMD_SET_CITIZEN_DATA`
+
+Sets a citizen's data.
+
+**Handler:** `sim_SetCitizenData` (0x10015690)
+
+| Offset | Type       | Name         | Description                           |
+|--------|------------|--------------|---------------------------------------|
+| 0x0    | `uint8_t`  | `packet_id`  | `0x1E`                                |
+| 0x1    | `uint8_t`  | `size`       | `0x70` (112)                          |
+| 0x2    | `uint32_t` | `citizen_id` | The ID of the citizen to update.      |
+| 0x6    | `uint8_t`  | `gender`     | The gender of the citizen.            |
+| 0x7    | `uint32_t` | `age`        | The age of the citizen.               |
+| 0xB    | `uint32_t` | `birth_year` | The birth year of the citizen.        |
+| 0xF    | `uint8_t[95]`| `padding`    | Unused.                               |
+
+### **`0x5F`**: `CMD_LOBBY_GET_PLAYER_LIST`
+
+Requests the list of players in the lobby.
+
+**Handler:** `lobby_get_player_list` (0x100145e0)
+
+| Offset | Type       | Name        | Description                           |
+|--------|------------|-------------|---------------------------------------|
+| 0x0    | `uint8_t`  | `packet_id` | `0x5F`                                |
+| 0x1    | `uint8_t`  | `size`      | `0x70` (112)                          |
+| 0x2    | `uint8_t[110]`| `padding`   | Unused.                               |
+
+### **`0x60`**: `CMD_LOBBY_SET_PLAYER_READY`
+
+Sets the player's ready status in the lobby.
+
+**Handler:** `lobby_set_player_ready_status` (0x100146c0)
+
+| Offset | Type       | Name           | Description                           |
+|--------|------------|----------------|---------------------------------------|
+| 0x0    | `uint8_t`  | `packet_id`    | `0x60`                                |
+| 0x1    | `uint8_t`  | `size`         | `0x70` (112)                          |
+| 0x2    | `uint32_t` | `player_id`    | The ID of the player.                 |
+| 0x6    | `uint32_t` | `ready_status` | The ready status of the player.       |
+| 0xA    | `uint8_t[104]`| `padding`      | Unused.                               |
+
+### **`0x61`**: `CMD_LOBBY_JOIN_GAME`
+
+Requests to join the game from the lobby.
+
+**Handler:** `lobby_join_game` (0x100147b0)
+
+| Offset | Type       | Name        | Description                           |
+|--------|------------|-------------|---------------------------------------|
+| 0x0    | `uint8_t`  | `packet_id` | `0x61`                                |
+| 0x1    | `uint8_t`  | `size`      | `0x70` (112)                          |
+| 0x2    | `uint32_t` | `player_id` | The ID of the player.                 |
+| 0x6    | `uint8_t[108]`| `padding`   | Unused.                               |
+
+---
+
+## Server → Client Packets
+
+These packets are sent from the server to the client to provide information and game state updates.
+
+### **`0x02`**: `CMD_INVALID_COMMAND`
+
+Indicates that the last command sent by the client was invalid.
+
+| Offset | Type      | Name        | Description      |
+|--------|-----------|-------------|------------------|
+| 0x0    | `uint8_t` | `packet_id` | `0x02`           |
+| 0x1    | `uint8_t` | `size`      | `0x02` (2)       |
+
+### **`0x04`**: `CMD_SET_PLAYER_ID`
+
+Assigns a player ID to the client.
+
+| Offset | Type       | Name        | Description      |
+|--------|------------|-------------|------------------|
+| 0x0    | `uint8_t`  | `packet_id` | `0x04`           |
+| 0x1    | `uint8_t`  | `size`      | `0x06` (6)       |
+| 0x2    | `uint32_t` | `player_id` | The player ID.   |
+
+### **`0x08`**: `CMD_GAME_DATA_START`
+
+Signals the start of game data transmission.
+
+| Offset | Type      | Name        | Description      |
+|--------|-----------|-------------|------------------|
+| 0x0    | `uint8_t` | `packet_id` | `0x08`           |
+| 0x1    | `uint8_t` | `size`      | `0x02` (2)       |
+
+### **`0x09`**: `CMD_GAME_DATA_CHUNK`
+
+A chunk of game data.
+
+| Offset | Type        | Name        | Description          |
+|--------|-------------|-------------|----------------------|
+| 0x0    | `uint8_t`   | `packet_id` | `0x09`               |
+| 0x1    | `uint8_t`   | `size`      | Variable             |
+| 0x2    | `uint8_t[]` | `data`      | The game data chunk. |
+
+### **`0x1E`**: `CMD_UPDATE_CITIZEN_AGE`
+
+Updates the age of a citizen.
+
+| Offset | Type       | Name         | Description      |
+|--------|------------|--------------|------------------|
+| 0x0    | `uint8_t`  | `packet_id`  | `0x1E`           |
+| 0x1    | `uint8_t`  | `size`       | `0x0E` (14)      |
+| 0x2    | `uint32_t` | `citizen_id` | The citizen ID.  |
+| 0x6    | `uint32_t` | `days`       | Days to add.     |
+| 0xA    | `uint32_t` | `months`     | Months to add.   |
+| 0xE    | `uint32_t` | `years`      | Years to add.    |
+
+### **`0x20`**: `CMD_SET_GAME_YEAR`
+
+Sets the current game year.
+
+| Offset | Type       | Name        | Description      |
+|--------|------------|-------------|------------------|
+| 0x0    | `uint8_t`  | `packet_id` | `0x20`           |
+| 0x1    | `uint8_t`  | `size`      | `0x06` (6)       |
+| 0x2    | `uint32_t` | `year`      | The game year.   |
