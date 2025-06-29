@@ -19,7 +19,7 @@
 | `srv_RecvFromClient` | `0x1000a340` | 95% | High | Receives data from a client connection using a non-blocking `select`. It reads the command header to determine the message size and then reads the full message. | Handles timeouts and Winsock errors gracefully. Appears to handle message framing. |
 | `srv_DispatchGameCommand` | `0x1000aac0` | 90% | High | Dispatches game commands to their appropriate handlers using a large jump table (switch statement). It reads a command ID from the client's stream and calls the corresponding `cm_*` function. | The central command router for the server. |
 | `srv_HandlePlayerCommand` | `0x10010390` | 85% | Medium | A secondary command dispatcher specifically for player-related commands. It takes a subcommand ID and calls the appropriate handler. | Focuses on player-specific actions. |
-| `srv_LoadGameState` | `0x10014260` | 70% | Medium | Receives and loads the complete game state from a client (likely the host). It reads a large, complex data structure containing all game objects and then calls `ls_ID2Ptr` to resolve pointers. | A critical, complex function for game state synchronization. |
+| `srv_LoadGameState` | `0x10014260` | 70% | Medium | Receives and loads the complete game state from a client (likely the host). It reads a large, complex data structure containing all game objects and then calls `ls_ID2Ptr` to resolve pointers. This function orchestrates the loading of the entire game state from a file by calling various `handleLoad...Data` functions. | A critical, complex function for game state synchronization. |
 | `send_broadcast_message` | `0x10001130` | 95% | High | Sends a UDP broadcast message to `255.255.255.255` for server discovery on the local network. It creates a UDP socket and sets the `SO_BROADCAST` option. | Standard implementation for LAN server discovery. |
 
 ## Command Handlers (`cm_`, `cm_Ex`)
@@ -34,7 +34,7 @@
 | `cm_KillPlayer` | `0x1000f030` | 95% | High | Command handler for killing a player. It's a simple wrapper around `gm_KillSpieler`. | Renamed variables for clarity. |
 | `cm_EmployWorker` | `0x1000f730` | 85% | Medium | Command handler for employing a worker. It calls `handleCreateCitizen2` to create a new worker. | Renamed variables for clarity. |
 | `cm_CreateBuilding` | `0x1000fb30` | 95% | High | Command handler for creating a building. It's a simple wrapper around `gm_AllocBuilding`. | Renamed variables for clarity. |
-| `cm_SetPlayerMoney` | `0x1000ffc0` | 100% | High | Sets a player's money. It directly updates the player's money value in the player data structure. | A simple and direct data modification. |
+| `cm_SetPlayerMoney` | `0x1000ffc0` | 100% | High | Sets a player's money. It directly-updates the player's money value in the player data structure. | A simple and direct data modification. |
 | `cm_SetPlayerTitle` | `0x10010010` | 100% | High | Sets a player's title. It directly updates the player's title and Amt information in the player data structure. | A simple and direct data modification. |
 | `cm_SetPlayerSkill` | `0x100100a0` | 100% | High | Sets a player's skill. It directly updates the player's skill value in the player data structure. | A simple and direct data modification. |
 | `cm_StartCutscene` | `0x1000ff60` | 90% | High | Command handler for starting a cutscene. It calls `cm_IsCutsceneReady` and sets player flags. | Renamed variables for clarity. |
@@ -88,7 +88,15 @@
 
 | Function | Address | Decompilation | Confidence | Description | Notes |
 |---|---|---|---|---|---|
-| `ls_ID2Ptr` | `0x10014070` | 65% | Medium | Converts object IDs to direct memory pointers after loading the game state. This is a critical step for resolving references between all game objects. | A complex function that is not yet fully understood. |
+| `ls_ID2Ptr` | `0x10014070` | 75% | Medium | Converts object IDs to direct memory pointers after loading the game state. This is a critical step for resolving references between all game objects. It iterates through various data structures and uses `handleGetPlayerById` and `gm_LoadGameData` to resolve the pointers. | A complex function that is not yet fully understood. |
+| `handleLoadPlayerData` | `0x100142b0` | 80% | Medium | Loads player data from the game state file. This function handles different save game versions, as indicated by the numerous conditional blocks based on the value of `DAT_1002d4ec` (likely the save game version). | Called by `srv_LoadGameState`. |
+| `handleLoadBuildingData` | `0x100143e0` | 80% | Medium | Loads building data from the game state file. It reads a count of buildings, and then iterates that many times, reading a fixed-size structure for each building. This suggests that the building data is stored in an array-like format. | Called by `srv_LoadGameState`. |
+| `handleLoadGameData` | `0x100144a0` | 80% | Medium | Loads general game data from the game state file. This is a very large and complex function that handles the loading of many different types of game data. It contains a great deal of conditional logic based on the save game version (`DAT_1002d4ec`), and it also has special handling for different object types. The function begins by reading a count of objects, and then enters a loop to process each one. The first object type checked for is ``, which appears to be a large, complex data structure that is read in smaller chunks. The next object types checked for are `H`, `I`, and `J`, which are related to graveyards. The handling of these objects changed in save game version `0x10047`. The next object types checked for are `K`, `L`, and `M`, which are related to alchemists. The handling of these objects changed in save game version `0x10049`. This function requires further analysis to be fully understood. | Called by `srv_LoadGameState`. |
+| `handleLoadGraveyardData` | `0x10012d00` | 80% | Medium | Loads graveyard data from the game state file. | Called by `handleLoadGameData`. |
+| `load_alchemist_data` | `0x10012e00` | 80% | Medium | Loads alchemist data from the game state file. | Called by `handleLoadGameData`. |
+| `handleLoadDynastyData` | `0x10014540` | 80% | Medium | Loads dynasty data from the game state file. | Called by `srv_LoadGameState`. |
+| `handleLoadAlchemistData` | `0x10014580` | 80% | Medium | Loads alchemist data from the game state file. | Called by `srv_LoadGameState`. |
+| `handleLoadTownData` | `0x100145c0` | 80% | Medium | Loads town data from the game state file. | Called by `srv_LoadGameState`. |
 
 ## Lobby (`lobby_`)
 
@@ -225,17 +233,19 @@
 | `CRT_exit` | `0x1001fe40` | 100% | High | The standard C exit function. | MSVC6 CRT |
 | `CRT__cexit` | `0x1001fe60` | 100% | High | Performs cleanup tasks and returns. | MSVC6 CRT |
 | `CRT__exit` | `0x1001fdf0` | 100% | High | Terminates the calling process. | MSVC6 CRT |
-| `CRT_toupper` | `0x1001b0c0` | 90% | High | Converts a character to uppercase. | MSVC6 CRT |
-| `CRT__toupper_l` | `0x1001b12f` | 85% | Medium | Converts a character to uppercase using the specified locale. | MSVC6 CRT |
-| `CRT_tolower` | `0x100213fe` | 90% | High | Converts a character to lowercase. | MSVC6 CRT |
-| `CRT__tolower_l` | `0x1002146d` | 85% | Medium | Converts a character to lowercase using the specified locale. | MSVC6 CRT |
-| `CRT_wctomb` | `0x1002075f` | 90% | High | Converts a wide character to a multibyte character. | MSVC6 CRT |
-| `CRT__wctomb_l` | `0x100207b8` | 85% | Medium | Converts a wide character to a multibyte character using the specified locale. | MSVC6 CRT |
+| `CRT_toupper` | `0x1001b0c0` | 90% | High | Converts a character to uppercase. Wrapper for `CRT__toupper_l`. | MSVC6 CRT. Uses `CRT_pctype` and `CRT_locale_handle`. |
+| `CRT__toupper_l` | `0x1001b12f` | 85% | Medium | Converts a character to uppercase using the specified locale. | MSVC6 CRT. Uses `CRT_pctype` and `CRT_locale_handle`. |
+| `CRT_tolower` | `0x100213fe` | 90% | High | Converts a character to lowercase. Wrapper for `CRT__tolower_l`. | MSVC6 CRT. Uses `CRT_pctype` and `CRT_locale_handle`. |
+| `CRT__tolower_l` | `0x1002146d` | 85% | Medium | Converts a character to lowercase using the specified locale. | MSVC6 CRT. Uses `CRT_pctype` and `CRT_locale_handle`. |
+| `CRT_wctomb` | `0x1002075f` | 90% | High | Converts a wide character to a multibyte character. Wrapper for `CRT__wctomb_l`. | MSVC6 CRT. Uses `CRT_mb_cur_max`. |
+| `CRT__wctomb_l` | `0x100207b8` | 85% | Medium | Converts a wide character to a multibyte character using the specified locale. | MSVC6 CRT. Uses `CRT_mb_cur_max`. |
 | `CRT_getenv` | `0x10022340` | 95% | High | Gets an environment variable. | MSVC6 CRT |
 | `CRT__initterm` | `0x1001fdd0` | 100% | High | Calls registered atexit handlers or global C++ destructors. | MSVC6 CRT |
 | `CRT__lock` | `0x1001ffc0` | 100% | High | Acquires a lock to prevent race conditions during exit processing. | MSVC6 CRT |
 | `CRT__unlock` | `0x1001ffd0` | 100% | High | Releases the lock acquired by lock_exit(). | MSVC6 CRT |
 | `CRT_atexit` | `0x1001fe80` | 90% | High | This is a common exit function used by exit() and _cexit(). It handles calling atexit handlers and other cleanup tasks. | MSVC6 CRT |
+| `CRT_GetEnvironmentStrings` | `0x1001fcc6` | 95% | High | Gets the environment strings from the OS, either in wide-character or multi-byte format. It then converts them to multi-byte if necessary and stores them in a buffer. | MSVC6 CRT |
+| `CRT_GetLocalTime` | `0x1001a567` | 95% | High | Gets the current local time and caches the result. This function also handles daylight saving time. | MSVC6 CRT |
 
 
 
@@ -300,3 +310,4 @@
 | `zlib_flush_buffer` | `0x10001890` | 100% | High | See zlib documentation. | Statically linked. From deflate.c, line 75. |
 | `zlib_reset_data` | `0x100019c0` | 100% | High | See zlib documentation. | Statically linked. From deflate.c, line 299. |
 | `zlib_zcalloc` | `0x100092e0` | 100% | High | See zlib documentation. | Statically linked. From zutil.c, line 264. |
+| `CRT_Startup10` | `0x1001f192` | 100% | High | Performs C runtime startup initialization, likely related to memory management or bitwise operations. | MSVC6 CRT |
