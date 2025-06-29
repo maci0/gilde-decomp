@@ -6,14 +6,6 @@ https://zlib.net/fossils/zlib-1.1.3.tar.gz
 Below the matched functions and their origin
 
 
-# zlib
-
-`server.dll` statically links again `zlib-1.1.3`
-https://zlib.net/fossils/zlib-1.1.3.tar.gz
-
-Below the matched functions and their origin
-
-
 | Function | Address | Decompilation | Confidence | Description | Notes |
 |---|---|---|---|---|---|
 | `zlib_adler32` | `0x10001000` | 100% | High | See zlib documentation. | Statically linked. From adler32.c, line 33. |
