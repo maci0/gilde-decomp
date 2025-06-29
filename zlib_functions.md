@@ -6,6 +6,14 @@ https://zlib.net/fossils/zlib-1.1.3.tar.gz
 Below the matched functions and their origin
 
 
+# zlib
+
+`server.dll` statically links again `zlib-1.1.3`
+https://zlib.net/fossils/zlib-1.1.3.tar.gz
+
+Below the matched functions and their origin
+
+
 | Function | Address | Decompilation | Confidence | Description | Notes |
 |---|---|---|---|---|---|
 | `zlib_adler32` | `0x10001000` | 100% | High | See zlib documentation. | Statically linked. From adler32.c, line 33. |
@@ -61,4 +69,7 @@ Below the matched functions and their origin
 | `zlib_bi_windup` | `0x100088a0` | 100% | High | See zlib documentation. | Statically linked. From trees.c, line 1029. |
 | `zlib_bi_align` | `0x10008930` | 100% | High | See zlib documentation. | Statically linked. From trees.c, line 850. |
 | `zlib_tr_stored_block` | `0x100089b0` | 100% | High | See zlib documentation. | Statically linked. From trees.c, line 943. |
+| `zlib_write_to_buffer` | `0x10001860` | 100% | High | See zlib documentation. | Statically linked. From deflate.c, line 62. |
+| `zlib_flush_buffer` | `0x10001890` | 100% | High | See zlib documentation. | Statically linked. From deflate.c, line 75. |
+| `zlib_reset_data` | `0x100019c0` | 100% | High | See zlib documentation. | Statically linked. From deflate.c, line 299. |
 | `zlib_zcalloc` | `0x100092e0` | 100% | High | See zlib documentation. | Statically linked. From zutil.c, line 264. |
