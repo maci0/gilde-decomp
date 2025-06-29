@@ -43,3 +43,10 @@
 | `lobby_set_player_ready_status` | `0x100146c0` | 90% | High | Sets the ready status of a player in the lobby. | Broadcasts the new status to all clients in the lobby. |
 | `lobby_join_game` | `0x100147b0` | 85% | High | Allows a player to join the game from the lobby. | Assigns the player to a slot and broadcasts the updated player list. |
 | `lobby_update_player_status` | `0x10014a50` | 90% | High | Updates the status of a player in the lobby. | Broadcasts the new status to all clients in the lobby. |
+| `is_amt_valid` | `0x1000d020` | 95% | High | Checks if an 'Amt' (office/rank) is valid. | Wrapper for `validate_amt`. |
+| `validate_amt` | `0x1000b1c0` | 70% | Medium | Validates an 'Amt' (office/rank) entry. | Complex logic involving multiple global data structures. |
+| `is_amt_action_valid` | `0x1000d040` | 95% | High | Checks if an 'Amt' (office/rank) action is valid. | Wrapper for `handleValidateAmtAction`. |
+| `handleValidateAmtAction` | `0x1000b440` | 70% | Medium | Validates an 'Amt' (office/rank) action. | Complex logic involving multiple global data structures. |
+| `cm_CanBuyItem` | `0x1000d060` | 85% | High | Checks if an item can be purchased. | Handles special item types and prevents duplicate purchases. |
+| `cm_ValidateLobbyAction` | `0x1000d110` | 80% | Medium | Validates lobby actions like joining and leaving. | Uses a 4-byte identifier to determine the action. Return logic is inverted. |
+| `cm_IsCutsceneReady` | `0x1000d260` | 85% | High | Checks if a cutscene is ready to be played. | Iterates through players and checks their status. |
