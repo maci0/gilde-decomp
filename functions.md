@@ -76,3 +76,11 @@
 | `cm_ExAllocGraveyardField` | `0x100109d0` | 80% | Medium | Command handler for allocating a graveyard field. | Allocates and initializes a graveyard field within a building. |
 | `logEvent` | `0x10002640` | 90% | High | Logs a message to a file, debug output, and/or console. | Game-specific utility function. |
 | `unhandledExceptionHandler` | `0x10002770` | 75% | Medium | Unhandled exception filter that generates a crash dump. | Critical for server stability and debugging. |
+| `writeArchiveFile` | `0x10002fc0` | 70% | Medium | Writes data to an archive file, likely for crash dumps. | Part of the error handling and debugging system. |
+| `getDataBlock` | `0x10003140` | 85% | High | Retrieves a data block from a data structure. | Used by the crash dump generation system. |
+| `checkMemoryProtection` | `0x10003170` | 85% | High | Checks the memory protection of a given address. | Used by the crash dump generation system. |
+| `analyzeBytePattern` | `0x10003260` | 80% | Medium | Analyzes a byte pattern to identify function prologues. | Used by the crash dump generation system to improve stack traces. |
+| `errorHandlerInit` | `0x10003320` | 90% | High | Initializes the error handling for the application. | Sets up the unhandled exception filter and logging. |
+| `errorHandlerCleanup` | `0x100034c0` | 90% | High | Cleans up the error handling system. | Logs a final message and frees the console if allocated. |
+| `fatalError` | `0x10003520` | 90% | High | Handles fatal errors. | Logs the error, displays a message box, and can terminate the program. |
+| `showMessage` | `0x100035c0` | 95% | High | Displays a message to the user. | Can log to a file or display a message box. |
