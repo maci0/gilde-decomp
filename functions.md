@@ -84,3 +84,8 @@
 | `errorHandlerCleanup` | `0x100034c0` | 90% | High | Cleans up the error handling system. | Logs a final message and frees the console if allocated. |
 | `fatalError` | `0x10003520` | 90% | High | Handles fatal errors. | Logs the error, displays a message box, and can terminate the program. |
 | `showMessage` | `0x100035c0` | 95% | High | Displays a message to the user. | Can log to a file or display a message box. |
+| `logMessage` | `0x10003640` | 95% | High | Logs a message with file and line number information. | Valuable for debugging. |
+| `mAlloc` | `0x10006580` | 70% | Medium | Custom memory allocation function. | Tracks memory usage with tags and statistics. |
+| `m_free` | `0x10006820` | 85% | High | Custom memory deallocation function. | Checks for double-free and memory underflow errors. |
+| `m_alloc_init` | `0x100068e0` | 90% | High | Initializes the custom memory allocator. | Allocates the tracking table and initializes statistics. |
+| `m_alloc_dump` | `0x10006990` | 80% | Medium | Dumps memory allocation statistics to the log. | Can be filtered by tag for targeted debugging. |
