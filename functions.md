@@ -96,3 +96,9 @@
 | `file_read` | `0x10008a90` | 75% | Medium | Reads data from a file, handling both compressed and uncompressed data. | Manages buffers, CRC32 checks, and zlib inflation. |
 | `file_close_and_free` | `0x10008c80` | 90% | High | Closes a file and frees its associated memory, including the zlib inflate stream. | Used for compressed files. |
 | `file_read_data` | `0x10008d10` | 70% | Medium | High-level function for reading data from files. | Handles different file types and compression, and performs cleanup. |
+| `vfs_read` | `0x10008e40` | 70% | Medium | Reads data from a virtual file system (VFS) entry. | Handles different file types and compression. |
+| `vfs_open` | `0x10009020` | 75% | Medium | Opens a virtual file system (VFS) entry for reading or writing. | Supports compressed and uncompressed data. |
+| `DllMain_Internal` | `0x10009310` | 100% | High | Internal DllMain function. | Stub function that returns 1. |
+| `send_broadcast_message` | `0x10001130` | 90% | High | Sends a UDP broadcast message. | Likely used for server discovery. |
+| `ls_ID2Ptr` | `0x10014070` | 60% | Low | Converts IDs to pointers after loading data. | Resolves references between game objects. |
+| `srv_LoadGameState` | `0x10014260` | 70% | Medium | Receives and loads the game state from a file. | Reads player, building, dynasty, alchemist, and town data. |
