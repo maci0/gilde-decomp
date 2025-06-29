@@ -11,9 +11,9 @@
 
 | Function | Address | Decompilation | Confidence | Description | Notes |
 |---|---|---|---|---|---|
-| `srv_GameLoop` | `0x100093a0` | 70% | Medium | Main server loop. Manages clients, game state, and network traffic. | Core of the server logic. Needs further analysis of sub-functions. |
-| `srv_InitServer` | `0x10009d30` | 90% | High | Initializes server components like error handling, memory, and game data. | Called once at the start of the game loop. |
-| `srv_InitSockets` | `0x10009e60` | 95% | High | Initializes the main server socket for network communication. | Uses Winsock API. |
+| `srv_GameLoop` | `0x100093a0` | 85% | High | The main server loop. It initializes the server, then enters a loop to accept clients, process their commands, and send back responses. It also handles the main game logic, including game state loading and synchronization. | Core of the server logic. Handles the entire game lifecycle from initialization to shutdown. |
+| `srv_InitServer` | `0x10009d30` | 95% | High | Initializes the server's core components. It sets the thread priority, initializes the custom memory allocator, loads game data, initializes game-specific systems like offices, and finally initializes the network sockets. | This is a critical function called once at the beginning of the `srv_GameLoop`. It orchestrates the entire server setup. |
+| `srv_InitSockets` | `0x10009e60` | 95% | High | Initializes the server's network sockets. It creates a socket, sets various options (SO_REUSEADDR, SO_RCVBUF, SO_SNDBUF), binds it to the server port, and puts it in a listening state. | A core networking function that prepares the server to accept client connections. |
 | `srv_AcceptClient` | `0x1000a080` | 85% | High | Accepts new client connections and assigns them to a slot. | Handles the initial client handshake. |
 | `srv_ProcessClientCommands` | `0x1000a570` | 80% | Medium | Processes incoming commands from clients. | Dispatches commands based on their type. |
 | `srv_RecvFromClient` | `0x1000a340` | 90% | High | Receives data from a client connection. | Handles timeouts and Winsock errors. |
