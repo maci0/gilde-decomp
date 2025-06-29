@@ -12,7 +12,7 @@
 | Function | Address | Decompilation | Confidence | Description | Notes |
 |---|---|---|---|---|---|
 | `srv_GameLoop` | `0x100093a0` | 90% | High | The main server loop. After calling `srv_InitServer`, it enters a `while` loop controlled by `g_bShutdownFlag`. In each iteration, it calls `srv_AcceptClient`, `srv_ProcessClientCommands`, and `srv_LoadGameState`. It yields execution with `Sleep(1)`. | Core of the server logic. Handles the entire game lifecycle from initialization to shutdown. |
-| `srv_InitServer` | `0x10009d30` | 100% | High | Initializes the server's core components. It sets the thread priority, initializes the custom memory allocator (`m_alloc_init`), loads game data (`amt_fio_LoadAemter`), and initializes network sockets (`srv_InitSockets`). | This is a critical function called once at the beginning of the `srv_GameLoop`. It orchestrates the entire server setup. |
+| `srv_InitServer` | `0x10009d30` | 100% | High | Initializes the server's core components. It sets the thread priority, initializes the custom memory allocator (`m_alloc_init`), loads game data (`aemter_LoadFromFile`), and initializes network sockets (`srv_InitSockets`). | This is a critical function called once at the beginning of the `srv_GameLoop`. It orchestrates the entire server setup. |
 | `srv_InitSockets` | `0x10009e60` | 100% | High | Initializes the server's network sockets using Winsock. It follows the standard sequence: `WSAStartup`, `socket`, `setsockopt` (SO_REUSEADDR, SO_RCVBUF, SO_SNDBUF), `bind`, and `listen`. | A core networking function that prepares the server to accept client connections. |
 | `srv_AcceptClient` | `0x1000a080` | 90% | High | Accepts new client connections non-blockingly using `select`. If a connection is pending, it calls `accept` and assigns the new client to a free slot. | Handles the initial client handshake efficiently without blocking the main loop. |
 | `srv_ProcessClientCommands` | `0x1000a570` | 85% | High | Processes incoming commands from all connected clients. It iterates through the client list, calls `srv_RecvFromClient` to read data, and then dispatches the received commands using `srv_DispatchGameCommand`. | Manages the flow of all incoming client data. |
@@ -68,6 +68,8 @@
 
 | Function | Address | Decompilation | Confidence | Description | Notes |
 |---|---|---|---|---|---|
+| `gm_AllocAlchemist` | `0x1000c600` | 95% | High | Allocates and initializes a new alchemist, which appears to be a specialized type of player character. | Renamed from `alloc_alchemist`. Called from `gm_AllocPlayer`. |
+| `building_SellItemTo` | `0x10019ed0` | 95% | High | Handles a player selling an item to an AI-controlled building. It checks for various conditions like building type, item category, and inventory space before adding the item. | Renamed from `add_item_to_building_inventory`. Called from `cm_ExSellObjekt` and `cm_ChkSellObjekt`. |
 | `gm_AllocBuilding` | `0x100174d0` | 85% | Medium | Allocates and initializes a new building. It uses `gm_GetFreeBuildingSlot` to find an empty slot in the building data pool. | Renamed variables for clarity. |
 | `gm_GetFreeBuildingSlot` | `0x10017210` | 100% | High | Retrieves a free building slot from the building data pool. It performs a simple linear search. | A straightforward and efficient implementation. |
 | `gm_AllocRoom` | `0x10017c40` | 85% | Medium | Allocates and initializes a new room within a building. It also creates associated objects for the room. | Renamed variables for clarity. |
@@ -79,6 +81,8 @@
 | `gm_GetBuildingItemCount` | `0x10019cd0` | 100% | High | Retrieves the item count of a building. It has special handling for certain item types. | A simple and direct data retrieval function. |
 | `gm_IsBuildingInventoryFull` | `0x10019d30` | 90% | High | Checks if a building's inventory is full. This prevents players from exceeding storage capacity. | Renamed variables for clarity. |
 | `gm_KillSpieler` | `0x10017fb0` | 85% | Medium | Kills a player and performs all necessary cleanup. This removes the player from the game world. | Renamed variables for clarity. |
+| `update_player_building` | `0x1000c380` | 95% | High | Updates a player's building information. | |
+| `update_player_desire` | `0x1000c3c0` | 95% | High | Updates a player's desire level. | |
 
 ## Load/Save (`ls_`)
 
@@ -129,6 +133,7 @@
 
 | Function | Address | Decompilation | Confidence | Description | Notes |
 |---|---|---|---|---|---|
+| `aemter_LoadFromFile` | `0x1000baf0` | 95% | High | Loads office (Amt) data from a file. | Renamed from `amt_fio_LoadAemter`. |
 | `is_amt_valid` | `0x1000d020` | 100% | High | Checks if an 'Amt' (office/rank) is valid. It's a simple wrapper for `validate_amt`. | Renamed variables for clarity. |
 | `validate_amt` | `0x1000b1c0` | 75% | Medium | Validates an 'Amt' (office/rank) entry. It contains complex logic involving multiple global data structures. | Requires further analysis to fully understand the validation logic. |
 | `is_amt_action_valid` | `0x1000d040` | 100% | High | Checks if an 'Amt' (office/rank) action is valid. It's a simple wrapper for `handleValidateAmtAction`. | Renamed variables for clarity. |
@@ -148,6 +153,8 @@
 
 | Function | Address | Decompilation | Confidence | Description | Notes |
 |---|---|---|---|---|---|
+| `entry` | `0x1001b9d4` | 100% | High | The true entry point of the DLL. | |
+| `DllMain` | `0x1001b8fb` | 100% | High | The main entry point for the DLL. | |
 | `enqueue_client_command` | `0x1000a8f0` | 95% | High | Queues a command to be sent to a client. It manages the outgoing command buffer. | Renamed variables for clarity. |
 | `client_queue_append_command` | `0x1000a9a0` | 95% | High | Queues a command to be sent to a client. This function adds a command to a client's outgoing queue, but it does not send it. | Renamed variables for clarity. |
 | `dequeue_command` | `0x1000aa50` | 95% | High | Dequeues a command from a client's incoming queue. It manages the incoming command buffer. | Renamed variables for clarity. |
@@ -156,10 +163,99 @@
 | `writeArchiveFile` | `0x10002fc0` | 75% | Medium | Writes data to an archive file, likely for crash dumps. This is part of the error handling and debugging system. | Renamed variables for clarity. |
 | `getDataBlock` | `0x10003140` | 90% | High | Retrieves a data block from a data structure. This is used by the crash dump generation system. | Renamed variables for clarity. |
 | `checkMemoryProtection` | `0x10003170` | 90% | High | Checks the memory protection of a given address. This is used by the crash dump generation system. | Renamed variables for clarity. |
-| `analyzeBytePattern` | `0x10003260` | 85% | Medium | Analyzes a byte pattern to identify function prologues. This is used by the crash dump generation system to improve stack traces. | A clever technique for improving crash reports. |
+| `analyzeBytePattern` | `0x10003260` | 95% | High | Analyzes a byte pattern for common x86 function prologues. | Used by the crash dump generation system to improve stack traces. |
 | `errorHandlerInit` | `0x10003320` | 95% | High | Initializes the error handling for the application. It sets up the unhandled exception filter and logging. | Renamed variables for clarity. |
 | `errorHandlerCleanup` | `0x100034c0` | 95% | High | Cleans up the error handling system. It logs a final message and frees the console if allocated. | Renamed variables for clarity. |
 | `fatalError` | `0x10003520` | 95% | High | Handles fatal errors. It logs the error, displays a message box, and can terminate the program. | Renamed variables for clarity. |
 | `showMessage` | `0x100035c0` | 100% | High | Displays a message to the user. It can log to a file or display a message box. | A simple and direct utility function. |
 | `logMessage` | `0x10003640` | 100% | High | Logs a message with file and line number information. This is valuable for debugging. | A simple and direct utility function. |
 | `DllMain_Internal` | `0x10009310` | 100% | High | Internal DllMain function. It's a stub function that returns 1. | No analysis needed. |
+
+## Bitwise Operations (`bitwise_`)
+
+| Function | Address | Decompilation | Confidence | Description | Notes |
+|---|---|---|---|---|---|
+| `bitwise_select` | `0x10021298` | 100% | High | Performs a bitwise SELECT operation. | Renamed from `bitwise_op`. |
+| `bitwise_select_masked` | `0x100212cd` | 100% | High | A wrapper around `bitwise_select` that clears the 19th bit of the mask. | Renamed from `bitwise_op_2`. |
+| `bitwise_permute` | `0x100212e3` | 100% | High | Performs a complex bit permutation, remapping bits from the input value to different positions in the output value. | Renamed from `bitwise_op_3`. |
+| `bitwise_inverse_permute` | `0x10021375` | 100% | High | Performs the inverse operation of `bitwise_permute`, restoring the original bitfield from a permuted value. | Renamed from `bitwise_op_4`. |
+| `bitwise_is_range_clear` | `0x10021538` | 100% | High | Checks if a range of bits in a bitfield is clear (all zeros). | Renamed from `bitwise_op_5`. |
+| `bitwise_set_and_propagate` | `0x10021581` | 100% | High | Sets a bit in the bitfield and then propagates a carry/borrow to the left. | Renamed from `bitwise_op_6`. |
+| `bitwise_clear_range_and_propagate` | `0x100215d7` | 100% | High | Clears a range of bits and potentially sets a bit and propagates a carry. | Renamed from `bitwise_op_7`. |
+| `bitwise_add_with_carry` | `0x100223bd` | 100% | High | Adds two unsigned integers and returns the carry bit. | Renamed from `bitwise_op_15`. |
+| `bitwise_shift_left_96` | `0x1002243c` | 100% | High | Performs a 96-bit left shift on a 3-element array of 32-bit integers. | Renamed from `bitwise_op_16`. |
+| `bitwise_shift_right_96` | `0x1002246a` | 100% | High | Performs a 96-bit right shift on a 3-element array of 32-bit integers. | Renamed from `bitwise_op_17`. |
+
+## Time Management (`time_`)
+
+| Function | Address | Decompilation | Confidence | Description | Notes |
+|---|---|---|---|---|---|
+| `time_init` | `0x10020915` | 100% | High | Initializes the time and timezone information. | Renamed from `time_management`. |
+| `time_init_timezone` | `0x10020943` | 90% | High | Initializes the timezone information from the `TZ` environment variable or the WinAPI. | Renamed from `time_management_2`. |
+| `time_is_dst_locked` | `0x10020bca` | 100% | High | A thread-safe wrapper around `time_is_dst`. | Renamed from `time_management_3`. |
+| `time_is_dst` | `0x10020beb` | 85% | Medium | Determines if a given time is in daylight saving time. | Renamed from `time_management_4`. |
+| `time_calculate_dst_date` | `0x10020d97` | 80% | Medium | Calculates the start or end date of daylight saving time for a given year. | Renamed from `time_management_5`. |
+| `time_gmtime_r` | `0x10020ed7` | 85% | Medium | A reentrant version of `gmtime`. | Renamed from `time_management_6`. |
+| `time_to_tm` | `0x1001cd7f` | 80% | Medium | Converts a `time_t`-like value to a `tm`-like structure. | |
+
+## zlib (`zlib_`)
+
+| Function | Address | Decompilation | Confidence | Description | Notes |
+|---|---|---|---|---|---|
+| `zlib_adler32` | `0x10001000` | 100% | High | See zlib documentation. | Statically linked. From adler32.c, line 33. |
+| `zlib_crc32` | `0x100011f0` | 100% | High | See zlib documentation. | Statically linked. From crc32.c, line 186. |
+| `zlib_deflateInit2_` | `0x10001330` | 100% | High | See zlib documentation. | Statically linked. From deflate.c, line 204. |
+| `zlib_deflateReset` | `0x10001530` | 100% | High | See zlib documentation. | Statically linked. From deflate.c, line 288. |
+| `zlib_deflate` | `0x100015b0` | 100% | High | See zlib documentation. | Statically linked. From deflate.c, line 388. |
+| `zlib_deflateEnd` | `0x10001910` | 100% | High | See zlib documentation. | Statically linked. From deflate.c, line 508. |
+| `zlib_deflate_stored` | `0x10001a60` | 100% | High | See zlib documentation. | Statically linked. From deflate.c, line 681. |
+| `zlib_fill_window` | `0x10001bc0` | 100% | High | See zlib documentation. | Statically linked. From deflate.c, line 868. |
+| `zlib_read_buf` | `0x10001cf0` | 100% | High | See zlib documentation. | Statically linked. From deflate.c, line 365. |
+| `zlib_parseGzipHeader` | `0x100036d0` | 100% | High | See zlib documentation. | Statically linked. From gzio.c, line 186. |
+| `zlib_getByte` | `0x10003820` | 100% | High | See zlib documentation. | Statically linked. From gzio.c, line 161. |
+| `zlib_closeFile` | `0x100038a0` | 100% | High | See zlib documentation. | Statically linked. From gzio.c, line 455. |
+| `zlib_readFromStream` | `0x10003960` | 100% | High | See zlib documentation. | Statically linked. From gzio.c, line 293. |
+| `zlib_writeToStream` | `0x10003b90` | 100% | High | See zlib documentation. | Statically linked. From gzio.c, line 365. |
+| `zlib_getLong` | `0x10003c50` | 100% | High | See zlib documentation. | Statically linked. From gzio.c, line 485. |
+| `zlib_closeStream` | `0x10003ca0` | 100% | High | See zlib documentation. | Statically linked. From gzio.c, line 455. |
+| `zlib_putLong` | `0x10003cf0` | 100% | High | See zlib documentation. | Statically linked. From gzio.c, line 474. |
+| `zlib_inflateReset` | `0x10003d20` | 100% | High | See zlib documentation. | Statically linked. From inflate.c, line 65. |
+| `zlib_inflateInit2_` | `0x10003da0` | 100% | High | See zlib documentation. | Statically linked. From inflate.c, line 88. |
+| `zlib_inflate` | `0x10003e40` | 100% | High | See zlib documentation. | Statically linked. From inflate.c, line 153. |
+| `zlib_inflateEnd` | `0x10004b40` | 100% | High | See zlib documentation. | Statically linked. From inflate.c, line 76. |
+| `zlib_tr_init` | `0x10004b80` | 100% | High | See zlib documentation. | Statically linked. From trees.c, line 505. |
+| `zlib_inflate_codes` | `0x10004bc0` | 100% | High | See zlib documentation. | Statically linked. From infcodes.c, line 101. |
+| `zlib_inflate_trees_free` | `0x10005370` | 100% | High | See zlib documentation. | Statically linked. From inftrees.c, line 418. |
+| `zlib_inflate_fast` | `0x10005390` | 100% | High | See zlib documentation. | Statically linked. From inffast.c, line 28. |
+| `zlib_inflate_blocks_reset` | `0x10005720` | 100% | High | See zlib documentation. | Statically linked. From infblock.c, line 158. |
+| `zlib_inflate_blocks_free` | `0x10005770` | 100% | High | See zlib documentation. | Statically linked. From infblock.c, line 426. |
+| `zlib_inflate_blocks_new` | `0x100057c0` | 100% | High | See zlib documentation. | Statically linked. From infblock.c, line 178. |
+| `zlib_inflate_blocks` | `0x100058d0` | 100% | High | See zlib documentation. | Statically linked. From infblock.c, line 201. |
+| `zlib_inflate_trees_dynamic` | `0x10005d00` | 100% | High | See zlib documentation. | Statically linked. From inftrees.c, line 353. |
+| `zlib_huft_build` | `0x10005db0` | 100% | High | See zlib documentation. | Statically linked. From inftrees.c, line 88. |
+| `zlib_inflate_trees_bits` | `0x10006280` | 100% | High | See zlib documentation. | Statically linked. From inftrees.c, line 329. |
+| `zlib_inflate_trees_fixed` | `0x10006410` | 100% | High | See zlib documentation. | Statically linked. From inftrees.c, line 438. |
+| `zlib_inflate_flush` | `0x10006440` | 100% | High | See zlib documentation. | Statically linked. From infutil.c, line 25. |
+| `zlib_ct_init` | `0x10006ec0` | 100% | High | See zlib documentation. | Statically linked. From trees.c, line 505. |
+| `zlib_tr_tally` | `0x10006f40` | 100% | High | See zlib documentation. | Statically linked. From trees.c, line 813. |
+| `zlib_tr_flush_block` | `0x10006fb0` | 100% | High | See zlib documentation. | Statically linked. From trees.c, line 861. |
+| `zlib_ct_tally` | `0x10007050` | 100% | High | See zlib documentation. | Statically linked. From trees.c, line 813. |
+| `zlib_bi_flush` | `0x100072b0` | 100% | High | See zlib documentation. | Statically linked. From trees.c, line 1014. |
+| `zlib_build_tree` | `0x100074a0` | 100% | High | See zlib documentation. | Statically linked. From trees.c, line 678. |
+| `zlib_pqdownheap` | `0x100076e0` | 100% | High | See zlib documentation. | Statically linked. From trees.c, line 573. |
+| `zlib_gen_codes` | `0x100077c0` | 100% | High | See zlib documentation. | Statically linked. From trees.c, line 644. |
+| `zlib_gen_bitlen` | `0x100079f0` | 100% | High | See zlib documentation. | Statically linked. From trees.c, line 598. |
+| `zlib_build_static_trees` | `0x10007a70` | 100% | High | See zlib documentation. | Statically linked. From trees.c, line 505. |
+| `zlib_scan_tree` | `0x10007ae0` | 100% | High | See zlib documentation. | Statically linked. From trees.c, line 724. |
+| `zlib_send_tree` | `0x10007bd0` | 100% | High | See zlib documentation. | Statically linked. From trees.c, line 765. |
+| `zlib_send_codes` | `0x10007e40` | 100% | High | See zlib documentation. | Statically linked. From trees.c, line 914. |
+| `zlib_send_all_trees` | `0x100083c0` | 100% | High | See zlib documentation. | Statically linked. From trees.c, line 833. |
+| `zlib_build_bl_tree` | `0x10008800` | 100% | High | See zlib documentation. | Statically linked. From trees.c, line 801. |
+| `zlib_bi_reverse` | `0x10008880` | 100% | High | See zlib documentation. | Statically linked. From trees.c, line 997. |
+| `zlib_bi_windup` | `0x100088a0` | 100% | High | See zlib documentation. | Statically linked. From trees.c, line 1029. |
+| `zlib_bi_align` | `0x10008930` | 100% | High | See zlib documentation. | Statically linked. From trees.c, line 850. |
+| `zlib_tr_stored_block` | `0x100089b0` | 100% | High | See zlib documentation. | Statically linked. From trees.c, line 943. |
+| `zlib_write_to_buffer` | `0x10001860` | 100% | High | See zlib documentation. | Statically linked. From deflate.c, line 62. |
+| `zlib_flush_buffer` | `0x10001890` | 100% | High | See zlib documentation. | Statically linked. From deflate.c, line 75. |
+| `zlib_reset_data` | `0x100019c0` | 100% | High | See zlib documentation. | Statically linked. From deflate.c, line 299. |
+| `zlib_zcalloc` | `0x100092e0` | 100% | High | See zlib documentation. | Statically linked. From zutil.c, line 264. |
