@@ -1,204 +1,189 @@
-# `server.dll`
+# `server.dll` Architecture Report
+
+This document provides a detailed architectural overview of the `server.dll` module from *Europa 1400: Gold Edition*. Its purpose is to document the server's design and behavior, including its core components, subsystems, and data management strategies.
+
+## Table of Contents
+
+- [1. Core Architecture](#1-core-architecture)
+  - [1.1. Server Lifecycle](#11-server-lifecycle)
+  - [1.2. Threading Model](#12-threading-model)
+  - [1.3. Main Game Loop](#13-main-game-loop)
+- [2. Subsystems](#2-subsystems)
+  - [2.1. Networking](#21-networking)
+  - [2.2. Memory Management](#22-memory-management)
+  - [2.3. VFS and File I/O](#23-vfs-and-file-io)
+  - [2.4. Error Handling and Crash Reporting](#24-error-handling-and-crash-reporting)
+- [3. Game State Synchronization](#3-game-state-synchronization)
+- [4. Data Storage](#4-data-storage)
+  - [4.1. Global Data Structures](#41-global-data-structures)
+  - [4.2. Game Data Files](#42-game-data-files)
+
+## 1. Core Architecture
+
+The `server.dll` module is a multithreaded, single-instance game server for *Europa 1400: Gold Edition*. It is designed to manage the complete lifecycle of a multiplayer game session, from initialization and player management to game state synchronization and final shutdown. The server operates on a client-server model where one client is designated as the "serving host," with the authority to load the initial game state.
+
+### 1.1. Server Lifecycle
+
+The server's lifecycle is managed through a sequence of initialization, execution, and shutdown steps:
+
+```
++----------------+      +------------------+      +------------------+      +----------------+
+|   `Init`       |----->| `srv_GameLoop`   |----->| `srv_InitServer` |----->|   Main Loop    |
+| (Export)       |      | (Thread Start)   |      | (Initialization) |      | (Active)       |
++----------------+      +------------------+      +------------------+      +----------------+
+        ^
+        |
++----------------+      +------------------+      +------------------+
+|   `Exit`       |<-----|  (Shutdown)      |<-----| (Cleanup)        |
+| (Export)       |      | `g_bShutdownFlag`|      |                  |
++----------------+      +------------------+      +------------------+
+```
+
+### 1.2. Threading Model
+
+The server uses a simple multithreading model with two primary threads:
+
+-   **Main Thread**: The thread that loads the `server.dll` library. It is responsible for calling the `Init` and `Exit` functions to start and stop the server.
+-   **Game Loop Thread**: A dedicated thread, created by `Init`, that runs the `srv_GameLoop` function. This design isolates the main server logic from the main thread, preventing the game from freezing if the server performs blocking operations.
+
+### 1.3. Main Game Loop
+
+The core of the server is the `srv_GameLoop`, which continuously processes game logic and network events. The loop's behavior is conditional, based on the game state (e.g., lobby vs. active game).
+
+```
++------------------------------------+
+| `srv_GameLoop`                     |
++------------------------------------+
+|                                    |
+|  +----------------------------+    |
+|  | `srv_InitServer`           |    |
+|  +----------------------------+    |
+|                                    |
+|  WHILE `!g_bShutdownFlag`          |
+|  |                                  |
+|  |  +-------------------------+   |
+|  |  | `srv_AcceptClient`      |   |
+|  |  +-------------------------+   |
+|  |                                  |
+|  |  +-------------------------+   |
+|  |  | `srv_ProcessClientCmds` |   |
+|  |  +-------------------------+   |
+|  |                                  |
+|  |  IF `is_game_active()`     |   |
+|  |  |                           |   |
+|  |  |  +--------------------+ |   |
+|  |  |  | `sim_Update`       | |   |
+|  |  |  +--------------------+ |   |
+|  |  |                           |   |
+|  |  END_IF                    |   |
+|  |                                  |
+|  |  +-------------------------+   |
+|  |  | `Sleep(1)`              |   |
+|  |  +-------------------------+   |
+|  |                                  |
+|  END_WHILE                         |
+|                                    |
++------------------------------------+
+```
+
+## 2. Subsystems
+
+### 2.1. Networking
+
+The networking subsystem uses a non-blocking TCP model with Winsock. It queues incoming and outgoing commands to avoid blocking the main game loop.
+
+-   **Command Queuing**: Incoming commands are placed in a queue by `srv_RecvFromClient` and processed by `srv_ProcessClientCommands`. Outgoing commands are queued with `enqueue_client_command` and sent by `srv_SendQueuedCommands`.
+-   **Command Dispatch**: `srv_DispatchGameCommand` uses a jump table to map command IDs to their corresponding `cm_*` handler functions, allowing for efficient command processing.
+
+```
++-----------------+   +----------------------+   +-----------------------+   +-------------------+
+| Client Action   |-->| `srv_RecvFromClient` |-->| `enqueue_client_cmd`  |-->| Command Queue     |
++-----------------+   +----------------------+   +-----------------------+   +-------------------+
+                                                                                    |
+                                                                                    v
++-----------------+   +----------------------+   +-----------------------+   +-------------------+
+| Server Response |<--| `srv_SendData`       |<--| `cm_*` Handler        |<--| `srv_DispatchCmd` |
++-----------------+   +----------------------+   +-----------------------+   +-------------------+
+```
 
-## 1. Architectural Overview
+### 2.2. Memory Management
 
-The `server.dll` module implements a multithreaded, single-instance game server for *Europa 1400: Gold Edition*. Its core architecture revolves around a central game loop that manages player connections, processes network commands, and synchronizes game state.
+The server uses a custom memory pool allocator to manage memory for game objects, which is more efficient than standard dynamic allocation.
 
-### Key Components:
+-   **`m_alloc_init`**: Initializes the memory manager.
+-   **`m_pool_alloc`**: Allocates a fixed-size block from a pre-allocated pool.
+-   **`m_pool_free`**: Returns a block to the pool.
 
--   **Main Thread**: The primary thread responsible for loading the DLL, initializing the server, and spawning the main game loop.
--   **Game Loop (`srv_GameLoop`)**: A dedicated thread that runs the main server logic, including accepting clients, processing data, and managing the game simulation.
--   **Networking**: A socket-based networking layer using Winsock for client-server communication.
--   **Game State Management**: A set of functions and data structures responsible for tracking players, objects, and the overall game world.
+This system is designed to minimize memory fragmentation and reduce the overhead of frequent allocations and deallocations.
 
-## 2. Server Initialization and Shutdown
+```
++------------------------------------+
+| Memory Pool                        |
++------------------------------------+
+|                                    |
+|  +-----------+  +-----------+      |
+|  | Free Block|  | Used Block| ...  |
+|  +-----------+  +-----------+      |
+|                                    |
++------------------------------------+
+```
 
-### Initialization (`Init` -> `srv_GameLoop` -> `srv_InitServer`)
+### 2.3. VFS and File I/O
 
-1.  **`Init`**: The exported entry point that starts the server. It creates a new thread executing `srv_GameLoop`.
-2.  **`srv_GameLoop`**:
-    *   Reads server configuration from `game.ini` (e.g., port, max players).
-    *   Calls `srv_InitServer` to set up the server environment.
-    *   Enters the main loop to handle game logic and network traffic.
-3.  **`srv_InitServer`**:
-    *   Initializes error handling and memory management (`m_alloc_init`).
-    *   Loads essential game data using `load_game_data`.
-    *   Initializes the network sockets via `srv_InitSockets`.
+The server uses a virtual file system (VFS) to manage access to game data files. This system supports reading from compressed archives, using the statically linked `zlib` library for decompression.
 
-### Shutdown (`Exit`)
+-   **`vfs_open`**: Opens a file from the VFS, handling both compressed and uncompressed data.
+-   **`file_read`**: Reads data from a file, performing decompression and CRC32 checks as needed.
 
-1.  **`Exit`**: The exported function to terminate the server.
-2.  It sets a global shutdown flag (`g_shutdown_flag`) to signal the `srv_GameLoop` to exit gracefully.
-3.  It waits for the game loop thread to finish before cleaning up resources and terminating the thread.
+```
++----------------+   +----------------+   +----------------+   +----------------+
+| `vfs_open`     |-->| `file_read`    |-->| `zlib_inflate` |-->|   Game Data    |
++----------------+   +----------------+   +----------------+   +----------------+
+```
 
-## 3. Networking Layer
+### 2.4. Error Handling and Crash Reporting
 
-The server uses a standard TCP-based networking model built on the Windows Sockets API (Winsock).
+The server includes a robust error handling system to ensure stability.
 
-### Socket Initialization (`srv_InitSockets`)
+-   **`unhandledExceptionHandler`**: A top-level exception filter that catches unhandled exceptions.
+-   **`writeArchiveFile`**: Generates a crash dump file containing the exception context and memory state, which is crucial for debugging.
 
--   Creates a non-blocking TCP socket.
--   Sets socket options (`SO_RCVBUF`, `SO_SNDBUF`).
--   Binds the socket to the configured server port.
--   Listens for incoming connections with a backlog of 5.
+```
++------------------+   +---------------------+   +--------------------+
+| Exception        |-->| `unhandledExFilter` |-->| `writeArchiveFile` |
++------------------+   +---------------------+   +--------------------+
+```
 
-### Client Connection (`srv_AcceptClient`)
+## 3. Game State Synchronization
 
--   Accepts new client connections using `accept`.
--   Assigns each client to an available slot in the `g_client_slots` array.
--   Initializes the client's state, including a unique ID, network buffers, and a timeout counter.
--   The first connected client is designated as the "serving host" and is granted additional privileges.
+Game state synchronization is a critical process that occurs when a game is loaded. The "serving host" is responsible for providing the initial game state, which is then broadcast to all other clients.
 
-## 4. Game Logic and State
+1.  The serving host sends the game state to the server.
+2.  The server receives the data and uses `srv_LoadGameState` to process it.
+3.  `srv_LoadGameState` calls a series of `handleLoad*` functions to deserialize the data.
+4.  `ls_ID2Ptr` is called to perform "pointer fix-ups," converting object IDs into direct memory pointers, which is essential for re-establishing object relationships.
 
-### Main Game Loop (`srv_GameLoop`)
+```
++--------------+    +---------------------+    +-----------------------+    +-------------------+
+| Serving Host |-->| `srv_LoadGameState` |-->| `handleLoad*` funcs   |-->| `ls_ID2Ptr`       |
+| (Client)     |    | (Server)            |    | (Deserialization)     |    | (Pointer Fix-up)  |
++--------------+    +---------------------+    +-----------------------+    +-------------------+
+```
 
-The main loop is responsible for:
+## 4. Data Storage
 
--   **Accepting new clients**.
--   **Broadcasting server status** to connected clients every 3 seconds.
--   **Processing incoming client commands** via `srv_ProcessClientCommands`.
--   **Sending queued outgoing commands** via `srv_SendQueuedCommands`.
--   **Checking for client timeouts and disconnections**.
--   **Synchronizing game state** once all players are ready.
--   **Running the main simulation tick** (`sim_UpdateCitizenAge`) when the game is active.
+### 4.1. Global Data Structures
 
-### Key Data Structures:
+The game state is stored in a collection of global data structures that are initialized at startup and modified during gameplay. Key structures include:
 
--   **`g_client_slots`**: A global array that holds the state for each connected client.
--   **`g_shutdown_flag`**: A global flag to signal the server to shut down.
--   **`g_server_port`**: The TCP port the server listens on.
--   **`g_max_players`**: The maximum number of players allowed.
+-   **`g_client_slots`**: An array of structures representing connected clients.
+-   **`g_player_data`**: An array storing data for all players in the game.
+-   **`g_building_data`**: An array for all buildings.
+-   **`g_object_data`**: An array for all game objects.
 
-## 5. Game Object Allocation
+### 4.2. Game Data Files
 
-The server uses a pre-allocated memory pool to manage game objects, including buildings, rooms, and other entities. This approach avoids the overhead of dynamic memory allocation during gameplay.
+The server loads initial game data from several files:
 
-### Building Allocation (`gm_AllocBuilding`)
-
--   Retrieves a free building slot from a global array using `gm_GetFreeBuildingSlot`.
--   Initializes the building's data, including its type, owner, and other attributes.
--   Allocates associated objects, such as rooms and inventory, using `gm_AllocRoom` and `gm_AllocObject`.
-
-### Room Allocation (`gm_AllocRoom`)
-
--   Allocates a new room within a building.
--   Initializes the room's properties and creates associated objects.
--   Establishes the hierarchical relationship between the building and the room.
-
-### Object Allocation (`gm_AllocObject`)
-
--   Allocates a new game object and initializes its data.
--   Assigns a parent object to establish a scene graph-like hierarchy.
--   This is the core function for creating all game entities.
-
-## 6. Player Management
-
-### Player Allocation (`gm_AllocPlayer`)
-
--   Allocates a new player from a global player data array.
--   Initializes a wide range of player attributes, including:
-    -   Player type and class.
-    -   Family relationships (father and mother).
-    -   Skills and attributes (randomized within certain bounds).
-    -   Initial state and inventory.
--   Interacts with other game systems, such as the alchemist and building systems, to set up the player's initial conditions.
-
-### Player Data Retrieval (`handleGetPlayerById`)
-
--   Retrieves a player's data from the global player array using a simple linear search.
-
-### Player Killing (`cm_KillPlayer`)
-
--   The `cm_KillPlayer` command handler is responsible for killing a player.
--   It calls `gm_KillSpieler` to perform the actual cleanup, which includes removing the player from the game world and updating their state to "dead".
-
-## 7. Object Manipulation
-
-### Moving Objects (`cmdt_MoveObject`)
-
--   The `cmdt_MoveObject` command handler is responsible for moving objects between containers.
--   It uses `gm_RemoveObjectNoKill` to remove the object from its source container and `gm_AddObject` to add it to its destination container.
--   This mechanism is used for a variety of in-game actions, such as moving items between a player's inventory and a building's storage.
-
-### Selling Objects (`cmdt_SellObject`)
-
--   The `cmdt_SellObject` command handler is responsible for selling objects.
--   It uses `gm_RemoveObject` to remove the object from the seller's inventory and `gm_AddObject` to add it to the buyer's inventory.
-
-## 8. Crafting and Production
-
-### Object Production (`cmdt_ProduceObject`)
-
--   The `cmdt_ProduceObject` command handler is responsible for producing new objects.
--   It checks if the required resources are available in the building's inventory using `gm_GetBuildingItemCount`.
--   It verifies that the building has enough space to store the new object using `gm_IsBuildingInventoryFull`.
--   If the conditions are met, it creates the new object and adds it to the building's inventory.
-
-## 9. Worker Management
-
-### Worker Employment (`cm_EmployWorker`)
-
--   The `cm_EmployWorker` command handler is responsible for employing new workers.
--   It calls `handleCreateCitizen2` to create a new citizen (worker).
--   It then adds the new worker to the specified building.
-
-## 10. Building Management
-
-### Building Creation (`cm_CreateBuilding`)
-
--   The `cm_CreateBuilding` command handler is responsible for creating new buildings.
--   It calls `gm_AllocBuilding` to allocate and initialize the new building.
-
-## 11. Player Economy
-
-### Setting Player Money (`cm_SetPlayerMoney`)
-
--   The `cm_SetPlayerMoney` command handler is responsible for setting a player's money.
--   It retrieves the player's data by their ID and then updates their money value.
-
-## 12. Player Social Status
-
-### Setting Player Title (`cm_SetPlayerTitle`)
-
--   The `cm_SetPlayerTitle` command handler is responsible for setting a player's title.
--   It retrieves the player's data by their ID and then updates their title value.
--   It also calls `handleRemovePlayerFromAmtWithCleanup` to update the player's "Amt" information, which appears to be related to their social standing.
-
-## 13. Player Skills
-
-### Setting Player Skill (`cm_SetPlayerSkill`)
-
--   The `cm_SetPlayerSkill` command handler is responsible for setting a player's skill.
--   It retrieves the player's data by their ID and then updates their skill value.
-
-## 14. Simulation
-
-### Updating Citizen Age (`sim_UpdateCitizenAge`)
-
--   The `sim_UpdateCitizenAge` function is responsible for updating a citizen's age.
--   It takes the number of days, months, and years to add to the citizen's age and then updates the citizen's data structure accordingly.
-
-### Setting Citizen Data (`sim_SetCitizenData`)
-
--   The `sim_SetCitizenData` function is responsible for setting a citizen's data.
--   It sets the gender, age, and birth year of a citizen.
-
-## 15. Lobby Management
-
-### Getting Player List (`lobby_get_player_list`)
-
--   The `lobby_get_player_list` command handler is responsible for retrieving the list of players in the lobby.
--   It iterates through the connected clients and sends a list of player IDs to the requesting client.
-
-### Setting Player Ready Status (`lobby_set_player_ready_status`)
-
--   The `lobby_set_player_ready_status` command handler is responsible for setting the ready status of a player in the lobby.
--   It updates the client's state and then broadcasts the new status to all other clients in the lobby.
-
-### Joining Game (`lobby_join_game`)
-
--   The `lobby_join_game` command handler is responsible for allowing a player to join the game from the lobby.
--   It checks if the game is full, and if not, it assigns the player to a slot and broadcasts the updated player list to all clients in the lobby.
-
-This initial analysis provides a foundational understanding of the server's architecture. The next steps will involve a deeper dive into the command processing and game state management functions to map out the network protocol and game-specific logic.
+-   **`game.ini`**: Contains server configuration settings.
+-   **`aemter.dat`**: Contains data for the "Amt" (office/rank) system.
