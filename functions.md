@@ -21,6 +21,11 @@
 | `srv_HandlePlayerCommand` | `0x10010390` | 85% | Medium | A secondary command dispatcher specifically for player-related commands. It takes a subcommand ID and calls the appropriate handler. | Focuses on player-specific actions. |
 | `srv_LoadGameState` | `0x10014260` | 70% | Medium | Receives and loads the complete game state from a client (likely the host). It reads a large, complex data structure containing all game objects and then calls `ls_ID2Ptr` to resolve pointers. This function orchestrates the loading of the entire game state from a file by calling various `handleLoad...Data` functions. | A critical, complex function for game state synchronization. |
 | `send_broadcast_message` | `0x10001130` | 95% | High | Sends a UDP broadcast message to `255.255.255.255` for server discovery on the local network. It creates a UDP socket and sets the `SO_BROADCAST` option. | Standard implementation for LAN server discovery. |
+| `srv_Cleanup` | `0x1000a010` | 95% | High | Cleans up all active sockets and associated resources. This includes shutting down and closing individual client sockets, the main server socket, and performing general memory and error handler cleanup. | Renamed from `sockets_cleanup`. |
+| `srv_CloseClientConnection` | `0x1000a2e0` | 95% | High | Closes a client connection and cleans up associated resources. | Renamed from `close_connection`. |
+| `srv_SendData` | `0x1000a490` | 95% | High | Sends data to a client connection. It handles partial sends, timeouts, and Winsock errors. | Renamed from `send_data`. |
+| `srv_SendQueuedCommands` | `0x1000a860` | 95% | High | Sends pending commands to connected clients. This function iterates through active connections, sends data, and dequeues commands after successful transmission. | Renamed from `send_commands`. |
+| `srv_HandleWinsockError` | `0x1000ad40` | 95% | High | Handles Winsock errors by logging a descriptive message based on the error code. | Renamed from `handle_winsock_error`. |
 
 ## Command Handlers (`cm_`, `cm_Ex`)
 
@@ -142,8 +147,9 @@
 | Function | Address | Decompilation | Confidence | Description | Notes |
 |---|---|---|---|---|---|
 | `aemter_LoadFromFile` | `0x1000baf0` | 95% | High | Loads office (Amt) data from a file. | Renamed from `amt_fio_LoadAemter`. |
+| `aemter_init` | `0x1000b040` | 95% | High | Initializes the 'Aemter' (offices/ranks) data structures. | Renamed from `init_offices`. |
 | `is_amt_valid` | `0x1000d020` | 100% | High | Checks if an 'Amt' (office/rank) is valid. It's a simple wrapper for `validate_amt`. | Renamed variables for clarity. |
-| `validate_amt` | `0x1000b1c0` | 75% | Medium | Validates an 'Amt' (office/rank) entry. It contains complex logic involving multiple global data structures. | Requires further analysis to fully understand the validation logic. |
+| `validate_amt` | `0x1000b1c0` | 75% | Medium | Validates an 'Amt' (office/rank) entry based on various criteria. | Renamed from `FUN_1000b1c0`. |
 | `is_amt_action_valid` | `0x1000d040` | 100% | High | Checks if an 'Amt' (office/rank) action is valid. It's a simple wrapper for `handleValidateAmtAction`. | Renamed variables for clarity. |
 | `handleValidateAmtAction` | `0x1000b440` | 75% | Medium | Validates an 'Amt' (office/rank) action. It contains complex logic involving multiple global data structures. | Requires further analysis to fully understand the validation logic. |
 
@@ -246,6 +252,8 @@
 | `CRT_atexit` | `0x1001fe80` | 90% | High | This is a common exit function used by exit() and _cexit(). It handles calling atexit handlers and other cleanup tasks. | MSVC6 CRT |
 | `CRT_GetEnvironmentStrings` | `0x1001fcc6` | 95% | High | Gets the environment strings from the OS, either in wide-character or multi-byte format. It then converts them to multi-byte if necessary and stores them in a buffer. | MSVC6 CRT |
 | `CRT_GetLocalTime` | `0x1001a567` | 95% | High | Gets the current local time and caches the result. This function also handles daylight saving time. | MSVC6 CRT |
+| `CRT_realloc_internal` | `0x1001b5cc` | 80% | Medium | Reallocates a block of memory to a new size. It supports different heap allocation strategies, including standard heap, virtual heap, and custom heap blocks. | MSVC6 CRT |
+| `CRT_reset_locale_info` | `0x10021f3d` | 95% | High | Resets the locale information of the C runtime. It clears a large block of memory and resets several global variables related to locale settings. | MSVC6 CRT |
 
 
 
