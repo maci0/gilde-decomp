@@ -89,3 +89,10 @@
 | `m_free` | `0x10006820` | 85% | High | Custom memory deallocation function. | Checks for double-free and memory underflow errors. |
 | `m_alloc_init` | `0x100068e0` | 90% | High | Initializes the custom memory allocator. | Allocates the tracking table and initializes statistics. |
 | `m_alloc_dump` | `0x10006990` | 80% | Medium | Dumps memory allocation statistics to the log. | Can be filtered by tag for targeted debugging. |
+| `m_alloc_cleanup` | `0x10006c00` | 90% | High | Cleans up the custom memory allocator. | Frees all tracked memory and reports leaks. |
+| `m_pool_alloc` | `0x10006d20` | 80% | Medium | Allocates memory from a memory pool. | Efficiently allocates fixed-size objects. |
+| `m_pool_free` | `0x10006e30` | 85% | High | Frees a block of memory from a memory pool. | Includes checks for invalid free attempts. |
+| `file_close` | `0x10008a50` | 90% | High | Closes a file and frees its associated memory. | Also calls `file_close_and_free` if a certain flag is set. |
+| `file_read` | `0x10008a90` | 75% | Medium | Reads data from a file, handling both compressed and uncompressed data. | Manages buffers, CRC32 checks, and zlib inflation. |
+| `file_close_and_free` | `0x10008c80` | 90% | High | Closes a file and frees its associated memory, including the zlib inflate stream. | Used for compressed files. |
+| `file_read_data` | `0x10008d10` | 70% | Medium | High-level function for reading data from files. | Handles different file types and compression, and performs cleanup. |
