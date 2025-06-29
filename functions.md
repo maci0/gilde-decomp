@@ -60,6 +60,9 @@
 | `cm_IsCutsceneReady` | `0x1000d260` | 85% | High | Checks if a cutscene is ready to be played. | Iterates through players and checks their status. |
 | `cm_Stub` | `0x1000d330` | 100% | High | Stub function that does nothing. | Placeholder for an unimplemented command. |
 | `cm_NotYetImplemented` | `0x1000d340` | 100% | High | Stub function that does nothing. | Placeholder for an unimplemented command. |
+| `cm_ExAllocObject` | `0x1000e750` | 85% | High | Command handler for allocating a new object. | Calls `gm_AllocObject` to perform the allocation. |
+| `cm_ExSetAttribute` | `0x1000e8d0` | 85% | High | Command handler for setting an attribute on a game object. | Can be used to modify a wide range of game data. |
+| `cm_AdjustRelationship` | `0x1000ec00` | 70% | Medium | Adjusts the relationship between two players. | Complex logic with different calculations based on adjustment type. |
 
 ## Game Mechanics (`gm_`)
 
