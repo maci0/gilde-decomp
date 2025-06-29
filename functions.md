@@ -135,10 +135,10 @@
 
 | Function | Address | Decompilation | Confidence | Description | Notes |
 |---|---|---|---|---|---|
-| `file_close` | `0x10008a50` | 95% | High | Closes a file and frees its associated memory. It also calls `file_close_and_free` if a certain flag is set. | Renamed variables for clarity. |
+| `file_close` | `0x10008a50` | 95% | High | Closes a file and frees its associated memory. It also calls `vfs_close_and_free` if a certain flag is set. | Renamed variables for clarity. |
 | `file_read` | `0x10008a90` | 80% | Medium | Reads data from a file, handling both compressed and uncompressed data. It manages buffers, CRC32 checks, and zlib inflation. | A complex function that is central to file I/O. |
-| `file_close_and_free` | `0x10008c80` | 95% | High | Closes a file and frees its associated memory, including the zlib inflate stream. This is used for compressed files. | Renamed variables for clarity. |
-| `file_read_data` | `0x10008d10` | 75% | Medium | High-level function for reading data from files. It handles different file types and compression, and it performs cleanup. | Renamed variables for clarity. |
+| `vfs_close_and_free` | `0x10008c80` | 95% | High | Closes a file and frees its associated memory, including the zlib inflate stream. This is used for compressed files. | Renamed from `file_close_and_free`. |
+| `vfs_read_data` | `0x10008d10` | 75% | Medium | High-level function for reading data from files. It handles different file types and compression, and it performs cleanup. | Renamed from `file_read_data`. |
 | `vfs_read` | `0x10008e40` | 75% | Medium | Reads data from a virtual file system (VFS) entry. It handles different file types and compression. | Renamed variables for clarity. |
 | `vfs_open` | `0x10009020` | 80% | Medium | Opens a virtual file system (VFS) entry for reading or writing. It supports compressed and uncompressed data. | The entry point for all VFS operations. |
 
@@ -180,7 +180,7 @@
 | `analyzeBytePattern` | `0x10003260` | 95% | High | Analyzes a byte pattern for common x86 function prologues. | Used by the crash dump generation system to improve stack traces. |
 | `errorHandlerInit` | `0x10003320` | 95% | High | Initializes the error handling for the application. It sets up the unhandled exception filter and logging. | Renamed variables for clarity. |
 | `errorHandlerCleanup` | `0x100034c0` | 95% | High | Cleans up the error handling system. It logs a final message and frees the console if allocated. | Renamed variables for clarity. |
-| `fatalError` | `0x10003520` | 95% | High | Handles fatal errors. It logs the error, displays a message box, and can terminate the program. | Renamed variables for clarity. |
+| `CRT_fatal_error` | `0x10003520` | 95% | High | Handles fatal errors. It logs the error, displays a message box, and can terminate the program. | Renamed from `fatalError`. |
 | `showMessage` | `0x100035c0` | 100% | High | Displays a message to the user. It can log to a file or display a message box. | A simple and direct utility function. |
 | `logMessage` | `0x10003640` | 100% | High | Logs a message with file and line number information. This is valuable for debugging. | A simple and direct utility function. |
 | `DllMain_Internal` | `0x10009310` | 100% | High | Internal DllMain function. It's a stub function that returns 1. | No analysis needed. |
@@ -199,6 +199,33 @@
 | `bitwise_add_with_carry` | `0x100223bd` | 100% | High | Adds two unsigned integers and returns the carry bit. | Renamed from `bitwise_op_15`. |
 | `bitwise_shift_left_96` | `0x1002243c` | 100% | High | Performs a 96-bit left shift on a 3-element array of 32-bit integers. | Renamed from `bitwise_op_16`. |
 | `bitwise_shift_right_96` | `0x1002246a` | 100% | High | Performs a 96-bit right shift on a 3-element array of 32-bit integers. | Renamed from `bitwise_op_17`. |
+
+## Memory Allocation
+
+| Function | Address | Decompilation | Confidence | Description | Notes |
+|---|---|---|---|---|---|
+| `CRT_malloc` | `0x1001a835` | 100% | High | A custom `malloc` implementation that acts as a wrapper around different memory allocation strategies. | MSVC6 CRT. Renamed from `malloc_internal`. |
+| `CRT_calloc` | `0x1001ff84` | 100% | High | A `calloc`-like function that allocates and zero-initializes memory. | MSVC6 CRT. Renamed from `malloc_internal_22`. |
+| `CRT_unlock_heap` | `0x1001a89c` | 100% | High | Unlocks a resource, likely the heap, using `CRT__unlock(9)`. | MSVC6 CRT. Renamed from `malloc_internal_2`. |
+| `CRT_unlock_heap_2` | `0x1001a8fb` | 100% | High | An identical copy of `CRT_unlock_heap`. | MSVC6 CRT. Renamed from `malloc_internal_3`. |
+| `CRT_unlock_heap_3` | `0x1001abeb` | 100% | High | Unlocks a resource, likely the heap, using `CRT__unlock(9)`. | MSVC6 CRT. Renamed from `memory_management`. |
+| `CRT_unlock_heap_4` | `0x1001ac43` | 100% | High | An identical copy of `CRT_unlock_heap`. | MSVC6 CRT. Renamed from `memory_management_2`. |
+| `CRT_unlock_heap_5` | `0x1002001d` | 100% | High | An identical copy of `CRT_unlock_heap`. | MSVC6 CRT. Renamed from `memory_management_39`. |
+| `CRT_unlock_heap_6` | `0x100200a6` | 100% | High | An identical copy of `CRT_unlock_heap`. | MSVC6 CRT. Renamed from `memory_management_40`. |
+| `CRT_unlock_heap_7` | `0x1001b757` | 100% | High | An identical copy of `CRT_unlock_heap`. | MSVC6 CRT. Renamed from `memory_management_7`. |
+| `CRT_unlock_heap_8` | `0x1001b8a5` | 100% | High | An identical copy of `CRT_unlock_heap`. | MSVC6 CRT. Renamed from `memory_management_8`. |
+| `stack_unwind_helper` | `0x1001ac70` | 70% | Medium | Appears to be a helper function for stack unwinding or exception handling. | Renamed from `memory_management_3`. |
+
+
+## Memory Copying
+
+| Function | Address | Decompilation | Confidence | Description | Notes |
+|---|---|---|---|---|---|
+| `CRT_memmove` | `0x1001b200` | 100% | High | An optimized `memmove` implementation that handles overlapping memory regions. | MSVC6 CRT. Renamed from `memcpy_internal`. |
+| `CRT_memmove_1` | `0x1001eab0` | 100% | High | An identical copy of `CRT_memmove`. | MSVC6 CRT. Renamed from `memcpy_internal_6`. |
+| `memcpy_12_bytes` | `0x10021663` | 100% | High | A specialized function that copies exactly 12 bytes. | Renamed from `memcpy_internal_13`. |
+| `bitstream_copy` | `0x100216a5` | 90% | High | A function that copies a stream of bits from a source to a destination, handling bit offsets. | Renamed from `memcpy_internal_14`. |
+| `memset_12_bytes_zero` | `0x1002167e` | 100% | High | A specialized function that sets 12 bytes of memory to zero. | Renamed from `memset_internal_2`. |
 
 ## CRT
 
@@ -254,8 +281,37 @@
 | `CRT_GetLocalTime` | `0x1001a567` | 95% | High | Gets the current local time and caches the result. This function also handles daylight saving time. | MSVC6 CRT |
 | `CRT_realloc_internal` | `0x1001b5cc` | 80% | Medium | Reallocates a block of memory to a new size. It supports different heap allocation strategies, including standard heap, virtual heap, and custom heap blocks. | MSVC6 CRT |
 | `CRT_reset_locale_info` | `0x10021f3d` | 95% | High | Resets the locale information of the C runtime. It clears a large block of memory and resets several global variables related to locale settings. | MSVC6 CRT |
-
-
+| `CRT_close` | `0x1001bc04` | 100% | High | A wrapper around `CRT_close_handle` that performs checks and sets `errno`. | MSVC6 CRT. Renamed from `close_file_handle`. |
+| `CRT_close_handle` | `0x1001bc61` | 100% | High | The core function for closing a file handle. It calls the Windows `CloseHandle` API. | MSVC6 CRT. Renamed from `close_file_handle_2`. |
+| `CRT_open` | `0x1002044c` | 90% | High | Opens or creates a file. It's a complex function that handles various flags and uses the Windows `CreateFileA` API. | MSVC6 CRT. Renamed from `file_management_16`. |
+| `CRT_alloc_handle` | `0x10020142` | 90% | High | Allocates a new file handle from a global table. | MSVC6 CRT. Renamed from `file_management_9`. |
+| `CRT_set_handle` | `0x10020265` | 95% | High | Associates a file handle with a file descriptor. | MSVC6 CRT. Renamed from `file_management_10`. |
+| `CRT_free_handle` | `0x100202e1` | 95% | High | Disassociates a file handle from a file descriptor. | MSVC6 CRT. Renamed from `file_management_11`. |
+| `CRT_get_handle` | `0x10020360` | 100% | High | Retrieves the file handle associated with a file descriptor. | MSVC6 CRT. Renamed from `file_management_12`. |
+| `CRT_lock_handle` | `0x100203a2` | 100% | High | Locks a file handle using a critical section. | MSVC6 CRT. Renamed from `file_management_13`. |
+| `CRT_unlock_handle` | `0x10020401` | 100% | High | Unlocks a file handle. | MSVC6 CRT. Renamed from `file_management_14`. |
+| `CRT_is_char_device` | `0x10020423` | 100% | High | Checks if a file is a character device. | MSVC6 CRT. Renamed from `file_management_15`. |
+| `CRT_flush_all` | `0x1001ad32` | 90% | High | Flushes the buffers of all open file streams. | MSVC6 CRT. Renamed from `file_management`. |
+| `CRT_fclose` | `0x1001a18a` | 100% | High | A wrapper around `__fclose_lk` that handles stream locking. | MSVC6 CRT. Renamed from `fclose_wrapper`. |
+| `CRT_flush` | `0x1001ac9f` | 95% | High | A wrapper around `CRT_flush_buffer` that also handles character devices. | MSVC6 CRT. Renamed from `file_flush`. |
+| `CRT_flush_buffer` | `0x1001accd` | 90% | High | The core function for flushing a file's buffer. | MSVC6 CRT. Renamed from `file_flush_2`. |
+| `CRT_init_stream` | `0x1001bd0f` | 90% | High | Initializes a file stream, including allocating a buffer for it. | MSVC6 CRT. Renamed from `file_io`. |
+| `CRT_flush_and_reset_buffer` | `0x1001bd9c` | 90% | High | Flushes a file's buffer and resets its state if the file is in an error state. | MSVC6 CRT. Renamed from `file_io_2`. |
+| `CRT_lseek` | `0x1001cbb5` | 100% | High | A wrapper around `CRT_lseek_nolock` that locks the file handle. | MSVC6 CRT. Renamed from `file_io_5`. |
+| `CRT_lseek_nolock` | `0x1001cc1a` | 95% | High | The core function for seeking within a file. It uses the Windows `SetFilePointer` API. | MSVC6 CRT. Renamed from `file_io_6`. |
+| `CRT_fgetc` | `0x1001ede5` | 90% | High | Reads a character from a file, handling buffering and error checking. | MSVC6 CRT. Renamed from `file_io_15`. |
+| `CRT_read` | `0x1001eec1` | 100% | High | A wrapper around `CRT_read_nolock` that locks the file handle. | MSVC6 CRT. Renamed from `file_io_16`. |
+| `CRT_read_nolock` | `0x1001ef26` | 85% | Medium | The core function for reading from a file. It uses the Windows `ReadFile` API and handles various edge cases. | MSVC6 CRT. Renamed from `file_io_17`. |
+| `CRT_flush_file_buffers` | `0x1001f0ff` | 95% | High | Flushes the buffers of a file to disk using the Windows `FlushFileBuffers` API. | MSVC6 CRT. Renamed from `file_io_22`. |
+| `CRT_alloc_buffer` | `0x1002071b` | 90% | High | Allocates a buffer for a file stream. | MSVC6 CRT. Renamed from `file_io_31`. |
+| `CRT_chsize` | `0x10022190` | 85% | Medium | Extends a file to a specified size by writing zeros to the end of the file. | MSVC6 CRT. Renamed from `file_io_48`. |
+| `CRT_fputc` | `0x1001add6` | 95% | High | Writes a character to a file, handling buffering. | MSVC6 CRT. Renamed from `file_putc`. |
+| `CRT_fread` | `0x1001aa6a` | 100% | High | A wrapper around `CRT_fread_nolock` that locks the file stream. | MSVC6 CRT. Renamed from `file_read_3`. |
+| `CRT_fread_nolock` | `0x1001aa99` | 85% | Medium | The core function for reading from a file. It handles buffering and calls `CRT_read` to perform the actual read operation. | MSVC6 CRT. Renamed from `file_read_4`. |
+| `CRT_fseek` | `0x1001a49a` | 95% | High | A wrapper around `CRT_lseek` that handles buffering and error checking. | MSVC6 CRT. Renamed from `file_seek_2`. |
+| `CRT_write` | `0x1001e8b4` | 100% | High | A wrapper around `CRT_write_nolock` that locks the file handle. | MSVC6 CRT. Renamed from `file_write_11`. |
+| `CRT_write_nolock` | `0x1001e919` | 85% | Medium | The core function for writing to a file. It uses the Windows `WriteFile` API and handles various edge cases. | MSVC6 CRT. Renamed from `file_write_12`. |
+| `CRT_fwrite` | `0x1001a960` | 85% | Medium | The core function for writing to a file. It handles buffering and calls `CRT_write` to perform the actual write operation. | MSVC6 CRT. Renamed from `file_write_2`. |
 
 ## zlib (`zlib_`)
 
