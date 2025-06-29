@@ -1,7 +1,6 @@
-Imports
-Exports
-Functions
-_
+# Functions
+
+```
 a
 add_item_to_building_inventory
 add_player_to_building
@@ -519,6 +518,4 @@ zlib_tr_stored_block
 zlib_tr_tally
 zlib_zcalloc
 zlib_zlib_build_static_trees
-Labels
-Classes
-Namespaces
+```
