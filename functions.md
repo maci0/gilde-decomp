@@ -186,17 +186,58 @@
 | `bitwise_shift_left_96` | `0x1002243c` | 100% | High | Performs a 96-bit left shift on a 3-element array of 32-bit integers. | Renamed from `bitwise_op_16`. |
 | `bitwise_shift_right_96` | `0x1002246a` | 100% | High | Performs a 96-bit right shift on a 3-element array of 32-bit integers. | Renamed from `bitwise_op_17`. |
 
-## Time Management (`time_`)
+## CRT
 
 | Function | Address | Decompilation | Confidence | Description | Notes |
 |---|---|---|---|---|---|
-| `time_init` | `0x10020915` | 100% | High | Initializes the time and timezone information. | Renamed from `time_management`. |
-| `time_init_timezone` | `0x10020943` | 90% | High | Initializes the timezone information from the `TZ` environment variable or the WinAPI. | Renamed from `time_management_2`. |
-| `time_is_dst_locked` | `0x10020bca` | 100% | High | A thread-safe wrapper around `time_is_dst`. | Renamed from `time_management_3`. |
-| `time_is_dst` | `0x10020beb` | 85% | Medium | Determines if a given time is in daylight saving time. | Renamed from `time_management_4`. |
-| `time_calculate_dst_date` | `0x10020d97` | 80% | Medium | Calculates the start or end date of daylight saving time for a given year. | Renamed from `time_management_5`. |
-| `time_gmtime_r` | `0x10020ed7` | 85% | Medium | A reentrant version of `gmtime`. | Renamed from `time_management_6`. |
-| `time_to_tm` | `0x1001cd7f` | 80% | Medium | Converts a `time_t`-like value to a `tm`-like structure. | |
+| `CRT_strchr` | `0x1001af30` | 100% | High | Finds the first occurrence of a character in a string. | MSVC6 CRT |
+| `CRT_strcmp` | `0x10021ac0` | 100% | High | Compares two strings. | MSVC6 CRT |
+| `CRT_strlen` | `0x1001bdd0` | 100% | High | Calculates the length of a string. | MSVC6 CRT |
+| `CRT_strncmp` | `0x10021200` | 100% | High | Compares a specified number of characters of two strings. | MSVC6 CRT |
+| `CRT_strncpy` | `0x1001ae20` | 100% | High | Copies a specified number of characters from one string to another. | MSVC6 CRT |
+| `CRT_strrchr` | `0x1001a540` | 100% | High | Finds the last occurrence of a character in a string. | MSVC6 CRT |
+| `CRT_strstr` | `0x1001aff0` | 100% | High | Finds the first occurrence of a substring in a string. | MSVC6 CRT |
+| `CRT_atof` | `0x1001f20b` | 80% | Medium | Converts a string to a floating-point number. | MSVC6 CRT |
+| `CRT__atof_l` | `0x1002255e` | 75% | Medium | Converts a string to a floating-point number using the specified locale. | MSVC6 CRT |
+| `CRT_atoi` | `0x10020fe1` | 100% | High | Converts a string to an integer. | MSVC6 CRT |
+| `CRT_strtol` | `0x10020ff8` | 85% | Medium | Converts a string to a long integer. | MSVC6 CRT |
+| `CRT__atoi_l` | `0x100222b5` | 90% | High | Converts a string to an integer using the specified locale. | MSVC6 CRT |
+| `CRT_strnlen` | `0x1002350a` | 100% | High | Calculates the length of a string up to a specified maximum number of characters. | MSVC6 CRT |
+| `CRT_putenv` | `0x10023535` | 85% | Medium | Adds or modifies an environment variable. | MSVC6 CRT |
+| `CRT__findenv` | `0x100236bc` | 90% | High | Finds an environment variable in the environment table. | MSVC6 CRT |
+| `CRT__clone_environ` | `0x10023714` | 90% | High | Creates a copy of the environment table. | MSVC6 CRT |
+| `CRT__strchr_l` | `0x1002377b` | 95% | High | Finds the first occurrence of a character in a string using the specified locale. | MSVC6 CRT |
+| `CRT__strdup` | `0x10023812` | 95% | High | Duplicates a string. | MSVC6 CRT |
+| `CRT__gcvt` | `0x1001f309` | 80% | Medium | Converts a floating-point number to a string. | MSVC6 CRT |
+| `CRT_gcvt_s` | `0x1001f36a` | 80% | Medium | Converts a floating-point number to a string with scientific notation. | MSVC6 CRT |
+| `CRT__fcvt` | `0x1001f42c` | 80% | Medium | Converts a floating-point number to a string. | MSVC6 CRT |
+| `CRT_fcvt_s` | `0x1001f481` | 80% | Medium | Converts a floating-point number to a string with a specified number of digits after the decimal point. | MSVC6 CRT |
+| `CRT__ecvt` | `0x1001f528` | 80% | Medium | Converts a floating-point number to a string. | MSVC6 CRT |
+| `CRT_strcat` | `0x1001f8e0` | 100% | High | Appends one string to another. | MSVC6 CRT |
+| `CRT_strcpy` | `0x1001f60c` | 100% | High | Copies one string to another. | MSVC6 CRT |
+| `CRT__unlock` | `0x1001d097` | 100% | High | Unlocks a global C runtime resource using a critical section. | MSVC6 CRT |
+| `CRT__unlock_file` | `0x1001bbb2` | 95% | High | Unlocks a file stream using its pointer to find the corresponding lock. | MSVC6 CRT |
+| `CRT__unlock_fileno` | `0x1001bbe1` | 95% | High | Unlocks a file stream using its ID to find the corresponding lock. | MSVC6 CRT |
+| `CRT__heap_init` | `0x1001d3c8` | 95% | High | Initializes the C runtime heap. | MSVC6 CRT |
+| `CRT__heap_term` | `0x1001d425` | 95% | High | Deinitializes the C runtime heap. | MSVC6 CRT |
+| `CRT__errno` | `0x1001a7e5` | 100% | High | Returns a pointer to the thread-local `errno` value. | MSVC6 CRT |
+| `CRT___doserrno` | `0x1001a7ee` | 100% | High | Returns a pointer to the thread-local `_doserrno` value. | MSVC6 CRT |
+| `CRT_exit` | `0x1001fe40` | 100% | High | The standard C exit function. | MSVC6 CRT |
+| `CRT__cexit` | `0x1001fe60` | 100% | High | Performs cleanup tasks and returns. | MSVC6 CRT |
+| `CRT__exit` | `0x1001fdf0` | 100% | High | Terminates the calling process. | MSVC6 CRT |
+| `CRT_toupper` | `0x1001b0c0` | 90% | High | Converts a character to uppercase. | MSVC6 CRT |
+| `CRT__toupper_l` | `0x1001b12f` | 85% | Medium | Converts a character to uppercase using the specified locale. | MSVC6 CRT |
+| `CRT_tolower` | `0x100213fe` | 90% | High | Converts a character to lowercase. | MSVC6 CRT |
+| `CRT__tolower_l` | `0x1002146d` | 85% | Medium | Converts a character to lowercase using the specified locale. | MSVC6 CRT |
+| `CRT_wctomb` | `0x1002075f` | 90% | High | Converts a wide character to a multibyte character. | MSVC6 CRT |
+| `CRT__wctomb_l` | `0x100207b8` | 85% | Medium | Converts a wide character to a multibyte character using the specified locale. | MSVC6 CRT |
+| `CRT_getenv` | `0x10022340` | 95% | High | Gets an environment variable. | MSVC6 CRT |
+| `CRT__initterm` | `0x1001fdd0` | 100% | High | Calls registered atexit handlers or global C++ destructors. | MSVC6 CRT |
+| `CRT__lock` | `0x1001ffc0` | 100% | High | Acquires a lock to prevent race conditions during exit processing. | MSVC6 CRT |
+| `CRT__unlock` | `0x1001ffd0` | 100% | High | Releases the lock acquired by lock_exit(). | MSVC6 CRT |
+| `CRT_atexit` | `0x1001fe80` | 90% | High | This is a common exit function used by exit() and _cexit(). It handles calling atexit handlers and other cleanup tasks. | MSVC6 CRT |
+
+
 
 ## zlib (`zlib_`)
 
