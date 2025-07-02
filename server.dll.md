@@ -187,3 +187,71 @@ The server loads initial game data from several files:
 
 -   **`game.ini`**: Contains server configuration settings.
 -   **`aemter.dat`**: Contains data for the "Amt" (office/rank) system.
+
+
+## `server.dll` Architecture
+
+This document describes the architecture of the `server.dll` module.
+
+### Initialization
+
+The server is initialized in the `srv_InitServer` function. This function is called by `srv_GameLoop` when the server is started. The initialization process consists of the following steps:
+
+1.  **Error Handling:** The `errorHandlerInit` function is called to set up an error handler for the server.
+2.  **Memory Allocation:** The `m_alloc_init` function is called to initialize the memory manager.
+3.  **Game Data Loading:** The `gm_open` function is called to load the game data from the `A_Geb.dat` and `A_Obj.dat` files.
+4.  **Networking:** The `srv_InitSockets` function is called to initialize the server's network sockets.
+
+### Game Loop
+
+The main game loop is in the `srv_GameLoop` function. The game loop consists of the following phases:
+
+1.  **Waiting for Players:** The server waits for all players to connect and be ready before starting the game.
+2.  **Game State Sync:** The server synchronizes the game state with all the clients.
+3.  **Main Loop:** The server processes client commands, runs the game simulation, and sends updates to the clients.
+4.  **Shutdown:** The server cleans up resources and shuts down.
+
+### Networking
+
+The server uses TCP for network communication. The server listens for incoming connections on port 7531. The server uses a custom command protocol to communicate with the clients.
+
+### Command Protocol
+
+The server uses a custom command protocol to communicate with the clients. The command protocol is based on a command table located at `0x1002c3f8`. The first byte of the command is used as an index into this table to find the corresponding command handler function.
+
+Each client has a command queue. When a client sends a command to the server, the server adds the command to the client's command queue. The server then processes the commands in the command queue in the order they were received.
+
+The command protocol has the following command types:
+
+*   **Lobby Commands:** These commands are used to manage the game lobby.
+*   **Game Data Transfer Commands:** These commands are used to transfer game data between the server and the clients.
+*   **Game Commands:** These commands are used to control the game.
+
+### Memory Management
+
+The server uses a custom memory management system. The functions for memory management (`m_init`, `m_alloc`, etc.) are not called directly. Instead, they are called via a dispatch mechanism.
+
+1.  A string name (e.g., "m_init") is passed to a dispatcher function.
+2.  The dispatcher looks up the corresponding function pointer.
+3.  The dispatcher calls the function pointer.
+
+This means the addresses for the memory functions are resolved at runtime and are not static.
+
+### Game Data Structures
+
+The game uses a variety of data structures to represent the game state. These data structures are defined in the `types.h` file. The following are some of the most important data structures:
+
+*   **`player_t`:** Represents a player in the game.
+*   **`building_t`:** Represents a building in the game.
+*   **`item_t`:** Represents an item in the game.
+*   **`citizen_t`:** Represents a citizen in the game.
+*   **`office_t`:** Represents an office or rank in the game.
+*   **`dynasty_t`:** Represents a dynasty in the game.
+*   **`town_t`:** Represents a town in the game.
+*   **`alchemist_t`:** Represents an alchemist in the game.
+
+### Third-Party Libraries
+
+The server uses the following third-party libraries:
+
+*   **`zlib`:** The server uses the `zlib` library for data compression. The `zlib` version used is `1.1.3`.

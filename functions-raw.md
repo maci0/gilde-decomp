@@ -1,6 +1,5 @@
-```c
 zlib_adler32	10001000	uLong zlib_adler32(uLong adler, Bytef * buf, uInt len)	302
-srv_SendBroadcast	10001130	void srv_SendBroadcast(int b_port, char * b_message)	179
+srv_SendBroadcast	10001130	void srv_SendBroadcast(ushort port, char * b_message)	179
 zlib_crc32	100011f0	ulong zlib_crc32(ulong crc, uchar * buf, uint len)	309
 zlib_deflateInit2_	10001330	int zlib_deflateInit2_(void * strm, int level, int method, int windowBits, int memLevel, int strategy, char * version, int stream_size)	505
 zlib_deflateReset	10001530	int zlib_deflateReset(void * strm)	115
@@ -82,8 +81,8 @@ CRT_fclose	10008a50	int CRT_fclose(FILE * stream)	53
 CRT_fread	10008a90	size_t CRT_fread(void * buffer, size_t size, size_t count, FILE * stream)	492
 vfs_close_and_free	10008c80	int vfs_close_and_free(void * file_ptr)	129
 vfs_read_data	10008d10	uint32_t vfs_read_data(void * file_data)	301
-vfs_read	10008e40	uint32_t vfs_read(void * buffer, int element_size, int element_count, void * file_data)	472
-vfs_open	10009020	int * vfs_open(byte * data, uint data_len, char * mode)	667
+vfs_read	10008e40	uint32_t vfs_read(void * output_buffer, int element_size, int element_count, void * vfs_file_data)	472
+vfs_open	10009020	int * vfs_open(byte * file_data, uint file_data_len, char * open_mode)	667
 zlib_zcalloc	100092e0	undefined zlib_zcalloc(undefined4 opaque, int items, int size)	19
 mem_FreeWrapper	10009300	undefined mem_FreeWrapper(undefined4 param_1, void * param_2)	12
 CRT_DllMain_stub	10009310	int CRT_DllMain_stub(void)	8
@@ -100,7 +99,7 @@ srv_SendData	1000a490	int srv_SendData(void * client_slot)	211
 srv_ProcessClientCommands	1000a570	int srv_ProcessClientCommands(void)	750
 srv_SendQueuedCommands	1000a860	int srv_SendQueuedCommands(void)	131
 enqueue_client_command	1000a8f0	int enqueue_client_command(void * client_slot, void * command_data)	170
-client_queue_append_command	1000a9a0	int client_queue_append_command(void * client, void * command_data)	170
+enqueue_client_command_alt	1000a9a0	int enqueue_client_command_alt(void * client, void * command_data)	170
 dequeue_command	1000aa50	void dequeue_command(void * client_data, void * command)	97
 srv_DispatchGameCommand	1000aac0	int srv_DispatchGameCommand(void)	639
 srv_HandleWinsockError	1000ad40	void srv_HandleWinsockError(uint32_t error_code)	600
@@ -118,19 +117,19 @@ amt_fio_LoadAemter	1000baf0	int amt_fio_LoadAemter(void * file_handle, uint32_t 
 amt_player_init	1000bd50	void amt_player_init(void * player_info)	66
 amt_is_player_in_amt	1000bda0	bool amt_is_player_in_amt(void * player_info)	70
 ahm_ExAllocAlchemist	1000bdf0	uint16_t ahm_ExAllocAlchemist(void * player_info)	1002
-gm_set_player_attributes	1000c1e0	int gm_set_player_attributes(void * attribute_data, int attribute_value)	130
-gm_add_player_to_building	1000c280	int gm_add_player_to_building(void * player_info, void * building_info, void * game_info)	130
-gm_remove_player_from_building	1000c310	int gm_remove_player_from_building(void * player_info, void * building_info, void * game_info)	110
-gm_update_player_building	1000c380	int gm_update_player_building(void * player_info, void * building_info)	51
-gm_update_player_desire	1000c3c0	int gm_update_player_desire(void * player_info, void * desire_info)	83
+gm_setPlayerAttributes	1000c1e0	int gm_setPlayerAttributes(void * attribute_data, int attribute_value)	130
+gm_addPlayerToBuilding	1000c280	int gm_addPlayerToBuilding(void * player_info, void * building_info, void * game_info)	130
+gm_removePlayerFromBuilding	1000c310	int gm_removePlayerFromBuilding(void * player_info, void * building_info, void * game_info)	110
+gm_updatePlayerBuilding	1000c380	int gm_updatePlayerBuilding(void * player_info, void * building_info)	51
+gm_updatePlayerDesire	1000c3c0	int gm_updatePlayerDesire(void * player_info, void * desire_info)	83
 inv_clear_slot	1000c420	int inv_clear_slot(uint32_t player_id, void * player_inventory, void * game_info)	166
-alm_load_data	1000c4d0	int alm_load_data(void * file, void * alchemist_info)	295
-gm_AllocAlchemist	1000c600	char * gm_AllocAlchemist(void)	109
-alm_get_by_id	1000c670	undefined4 * alm_get_by_id(int id)	45
-alm_process_turn	1000c6a0	void alm_process_turn(void * game_info)	102
+alm_load_data	1000c4d0	int alm_load_data(void * file_handle, void * alchemist_data)	295
+gm_allocAlchemist	1000c600	char * gm_allocAlchemist(void)	109
+alm_get_by_id	1000c670	undefined4 * alm_get_by_id(int alchemist_id)	45
+alm_process_turn	1000c6a0	void alm_process_turn(void * game_data)	102
 cm_get_size	1000c710	int cm_get_size(void * command)	340
 cm_process	1000ca00	int cm_process(void * command)	130
-gm_GetPlayerConnection	1000ca90	int gm_GetPlayerConnection(void * player_info, int connection_type)	130
+gm_getPlayerConnection	1000ca90	int gm_getPlayerConnection(void * player_info, int connection_type)	130
 cm_ChkMoveCredits	1000cb20	undefined4 cm_ChkMoveCredits(void * param_1)	171
 cm_ChkSellObjekt	1000cbd0	undefined4 cm_ChkSellObjekt(short * command_data)	517
 cm_ChkChangeAttribute	1000cde0	undefined4 cm_ChkChangeAttribute(void * param_1)	331
@@ -153,10 +152,10 @@ cm_ExSellObject	1000d7f0	undefined4 cm_ExSellObject(void * command_data, undefin
 move_object	1000d8a0	undefined4 move_object(void * command_data, undefined1 * result_ptr)	142
 cm_ExSellObjekt	1000d930	undefined4 cm_ExSellObjekt(void * command_data, undefined1 * result_ptr)	2057
 cm_ExProdObjekt	1000e140	undefined4 cm_ExProdObjekt(void * command_data, undefined1 * result_ptr)	993
-cm_ExMoveObjekt	1000e533	undefined4 cm_ExMoveObjekt(void * param_1, undefined4 param_2, void * param_3, undefined1 * param_4)	343
+cm_ExMoveObjekt	1000e533	undefined4 cm_ExMoveObjekt(void * command_data, undefined4 unknown_param_2, void * param_3, undefined1 * result_ptr)	343
 cm_ExClearLagerslot	1000e690	int cm_ExClearLagerslot(void * player_data, uint8_t * status_flag)	191
 cm_ExAllocObject	1000e750	undefined4 cm_ExAllocObject(void * param_1, undefined1 * param_2)	123
-cm_ExChangeAttribute	1000e7d0	undefined4 cm_ExChangeAttribute(void * param_1, undefined1 * param_2)	242
+cm_ExChangeAttribute	1000e7d0	undefined4 cm_ExChangeAttribute(void * command_data, undefined1 * result_ptr)	242
 cm_ExSetAttribute	1000e8d0	undefined4 cm_ExSetAttribute(void * param_1, undefined1 * param_2)	239
 cm_ExChangeDesire	1000e9c0	int cm_ExChangeDesire(void * player_data, uint8_t * status_flag)	214
 cm_ExchangeBits	1000eaa0	undefined4 cm_ExchangeBits(void * param_1, undefined1 * param_2)	145
@@ -177,10 +176,10 @@ cm_SetNextAktion3	1000f0a0	undefined4 cm_SetNextAktion3(int param_1)	37
 cm_ExRemoveObject	1000f0d0	int cm_ExRemoveObject(void * param_1, undefined1 * param_2)	197
 cm_ExPlant	1000f1a0	undefined4 cm_ExPlant(int param_1, undefined1 * param_2)	327
 cm_ExAllocThemaPredigt	1000f2f0	undefined4 cm_ExAllocThemaPredigt(void * param_1, undefined1 * param_2)	172
-cm_ExSetGebBesitzer	1000f3b0	undefined4 cm_ExSetGebBesitzer(int param_1, undefined1 * param_2)	206
+cm_ExSetGebBesitzer	1000f3b0	undefined4 cm_ExSetGebBesitzer(int command_data, undefined1 * result_ptr)	206
 cm_ExSetGebUpgrade	1000f590	undefined4 cm_ExSetGebUpgrade(int param_1, undefined1 * param_2)	237
 cm_ExFreeGeb	1000f680	undefined4 cm_ExFreeGeb(undefined4 param_1, undefined1 * param_2)	171
-cm_EmployWorker	1000f730	undefined4 cm_EmployWorker(int param_1, undefined1 * param_2)	515
+cm_ExEmployWorker	1000f730	undefined4 cm_ExEmployWorker(int param_1, undefined1 * param_2)	515
 cm_AssignAmt	1000f940	bool cm_AssignAmt(int param_1)	22
 cm_PerformAmtAction	1000f960	bool cm_PerformAmtAction(int param_1)	22
 cm_AllocCharacter	1000f980	undefined4 cm_AllocCharacter(void * param_1, undefined1 * param_2)	335
@@ -198,14 +197,14 @@ cm_SetPlayerSkill	100100a0	int cm_SetPlayerSkill(void * player_data)	159
 cm_ZombieCommand	10010260	int cm_ZombieCommand(int param_1)	114
 cm_AllocGraveyardWorker	10010310	int cm_AllocGraveyardWorker(int param_1)	52
 cm_GetPlayerAmtId	10010350	int cm_GetPlayerAmtId(int param_1)	52
-srv_HandlePlayerCommand	10010390	undefined4 srv_HandlePlayerCommand(int param_1)	262
+srv_HandlePlayerCommand	10010390	undefined4 srv_HandlePlayerCommand(int command_data)	262
 cm_ExGetBuildingDataSize	100104a0	int cm_ExGetBuildingDataSize(void * building_data)	135
 cm_ExValidateBuildingData	10010530	int cm_ExValidateBuildingData(void * building_data, int data_type)	113
 cm_ExGetBuildingDataPtr	100105b0	int cm_ExGetBuildingDataPtr(void * building_data, int data_type, byte index)	329
 cm_ExIterateBuildingData_callback	10010700	bool cm_ExIterateBuildingData_callback(undefined4 param_1, int param_2)	14
 cm_ExIterateBuildingData	10010710	uint32_t cm_ExIterateBuildingData(void * callback_data, void * building_type_data, int start_offset, void * callback, int data_type)	320
 cm_ExAllocGraveyard	10010850	int cm_ExAllocGraveyard(void * building_type_data, int count)	370
-cm_ExAllocGraveyardField	100109d0	undefined4 * cm_ExAllocGraveyardField(byte * building_type_data)	832
+gv_AllocGraveyardField	100109d0	undefined4 * gv_AllocGraveyardField(byte * building_type_data)	832
 cm_ExUpgradeGraveyard	10010d10	int cm_ExUpgradeGraveyard(void * graveyard_data)	570
 cm_ExFreeGraveyard	10010f50	void cm_ExFreeGraveyard(void * graveyard_data)	66
 cm_SetZombieData	10010fa0	int cm_SetZombieData(void * zombie_data)	525
@@ -218,24 +217,24 @@ cm_AllocGraveyardWorker	10011890	int cm_AllocGraveyardWorker(void * worker_data)
 cm_ExMoveZombie	10011940	int cm_ExMoveZombie(void * zombie_data)	674
 handleAllocGraveyardWorker2	10011bf0	uint32_t handleAllocGraveyardWorker2(void * worker_data)	1040
 handleLoadGraveyardData	10012000	int handleLoadGraveyardData(void * file_handle, void * building_type_data)	728
-gm_player_init	100122e0	void gm_player_init(int init_type, uint32_t player_id, uint16_t player_type, void * player_data)	346
+gm_playerInit	100122e0	void gm_playerInit(int init_type, uint32_t player_id, uint16_t player_type, void * player_data)	346
 fs_read_file_data	10012440	bool fs_read_file_data(void * buffer, int element_size, int element_count, void * file_data)	37
-gm_load_player_data	10012470	int gm_load_player_data(void * file_handle, void * player_data)	857
-gm_load_building_data	100127d0	int gm_load_building_data(void * file_handle)	282
+gm_loadPlayerData	10012470	int gm_loadPlayerData(void * file_handle, void * player_data)	857
+gm_loadBuildingData	100127d0	int gm_loadBuildingData(void * file_handle)	282
 gd_load_game_data	100128f0	int gd_load_game_data(void * file_handle)	1463
 dyn_load_data	10012eb0	int dyn_load_data(void * file_handle)	884
-alm_load_data_2	10013230	int alm_load_data_2(void * file_handle)	2268
-gm_AllocGebaeude	10013b10	int gm_AllocGebaeude(void * file_handle)	1361
+load_player_and_building_data	10013230	int load_player_and_building_data(void * file_ptr)	2268
+gs_LoadGameData	10013b10	int gs_LoadGameData(void * file_handle)	1361
 ls_ID2Ptr	10014070	int ls_ID2Ptr(void)	491
-gm_AllocRaum	10014260	int gm_AllocRaum(void * file_handle)	892
-lb_get_player_list	100145e0	int lb_get_player_list(void * client_data, void * command_data)	209
-lb_set_player_ready_status	100146c0	int lb_set_player_ready_status(void * client_data, void * command_data)	236
-lb_join_game	100147b0	int lb_join_game(void * client_data, void * command_data)	670
+srv_RecvGame	10014260	int srv_RecvGame(void * file_handle)	892
+lb_ExPlayerlist	100145e0	int lb_ExPlayerlist(void * client_data, void * command_data)	209
+lb_ExPlayerReadyStatus	100146c0	int lb_ExPlayerReadyStatus(void * client_data, void * command_data)	236
+lb_ExPlayerHasJoined	100147b0	int lb_ExPlayerHasJoined(void * client_data, void * command_data)	670
 lb_update_player_status	10014a50	int lb_update_player_status(void * client_data, void * command_data)	157
 lb_forward_command	10014af0	int lb_forward_command(void * client_data, void * command_data)	247
 lb_get_player_data	10014bf0	int lb_get_player_data(void * client_data, void * command_data)	163
 lb_chat_message	10014ca0	int lb_chat_message(void * client_data, void * command_data)	265
-lb_dispatch_command	10014db0	int lb_dispatch_command(void * client_slot, void * command)	267
+lb_ExLobbyServerCommand	10014db0	int lb_ExLobbyServerCommand(void * client_slot, void * command)	267
 plt_get_map	10014ee0	undefined * plt_get_map(uint map_id)	69
 plt_find_free_slot	10014f30	int plt_find_free_slot(int plant_map, uint x_coord, uint y_coord)	74
 plt_find_slot_by_coords	10014f80	int plt_find_slot_by_coords(int plant_map, int x_coord, int y_coord)	103
@@ -245,72 +244,72 @@ res_get_data	100151b0	int res_get_data(int resource_id, void * resource_data)	41
 sim_cit_create	100151e0	uint32_t sim_cit_create(void * game_data)	535
 sim_cit_add_to_building	10015400	void sim_cit_add_to_building(void * building_data, void * citizen_data)	83
 sim_cit_remove_from_building	10015460	void sim_cit_remove_from_building(void * citizen_data)	145
-gm_AllocSpieler	10015500	void * gm_AllocSpieler(uint8_t flags, uint32_t player_id, void * game_data, uint8_t gender, uint8_t age)	180
-sim_UpdateCitizenAge	100155c0	int sim_UpdateCitizenAge(void * citizen_data, int days, int months, int years)	197
+sim_CreateCitizen	10015500	void * sim_CreateCitizen(uint8_t creation_flags, uint32_t new_citizen_id, void * game_data_ptr, uint8_t citizen_gender, uint8_t citizen_age)	180
+sim_UpdateCitizenAge	100155c0	int sim_UpdateCitizenAge(void * citizen_data, int days_to_add, int months_to_add, int years_to_add)	197
 sim_SetCitizenData	10015690	void sim_SetCitizenData(void * citizen_data, uint8_t gender, uint32_t age, uint32_t birth_year)	41
-gm_InitObjektHersteller	100156c0	void gm_InitObjektHersteller(void)	642
-gm_Open	10015950	int gm_Open(char * game_path)	861
+gm_initObjectManufacturer	100156c0	void gm_initObjectManufacturer(void)	642
+gm_open	10015950	int gm_open(char * game_path)	861
 gd_load_game_data_2	10015cb0	void gd_load_game_data_2(void)	57
 gd_load_game_data_3	10015cf0	void gd_load_game_data_3(void)	194
 gd_load_game_data_4	10015dc0	int gd_load_game_data_4(int object_id)	55
 gd_load_game_data_5	10015e00	void gd_load_game_data_5(void)	135
-gm_LoadGameData	10015e90	int gm_LoadGameData(void * * building_data_ptr, void * * object_data_ptr, void * * alchemist_data_ptr, uint32_t id)	211
+gm_getObjectByID	10015e90	int gm_getObjectByID(void * * building_data_ptr, void * * object_data_ptr, void * * alchemist_data_ptr, uint32_t id)	211
 gd_load_game_data_7	10015f70	void gd_load_game_data_7(uint32_t game_data_id)	714
-gm_GetObjectFromList	10016240	undefined4 * gm_GetObjectFromList(int list_id, uint object_id)	72
+gm_getObjectFromList	10016240	undefined4 * gm_getObjectFromList(int list_id, uint object_id)	72
 obj_get_next_from_list	10016290	undefined obj_get_next_from_list()	464
-handleFindObjectInList	10016460	int handleFindObjectInList(int list_id, int filter_flags)	284
+gm_findObject	10016460	int gm_findObject(int list_id, int filter_flags)	284
 obj_management	100165a0	void obj_management(void)	37
 handleRemoveObjectFromList	100165d0	int handleRemoveObjectFromList(void * list_ptr, uint32_t object_id)	155
 handleNoop2	10016670	void handleNoop2(void)	1
 obj_remove_from_list_by_id	10016680	int obj_remove_from_list_by_id(void * list_ptr, uint32_t object_id)	139
 handleFreeObjectList	10016710	int handleFreeObjectList(void * list_ptr)	66
-gm_AllocObject	10016760	ushort * gm_AllocObject(uint32_t parent_id, uint object_type, undefined4 flags)	930
-gm_AddObjekt	10016cd0	ushort * gm_AddObjekt(uint32_t parent_id, uint object_id, int count)	272
-gm_SubObjekt	10016de0	int gm_SubObjekt(uint32_t parent_id, uint32_t object_id, int count)	186
-gm_RemoveObjectNoKill	10016ea0	int gm_RemoveObjectNoKill(uint32_t parent_id, uint32_t object_id, int count)	211
-bld_get_next	10016f80	byte * bld_get_next(void)	346
-gm_FindObject	100170e0	byte * gm_FindObject(int filter_flags)	267
-gm_GetFreeBuildingSlot	10017210	char * gm_GetFreeBuildingSlot(void)	39
-gm_FreeBuilding	10017240	int gm_FreeBuilding(void * building_data)	167
-bld_management	10017330	void bld_management(void * building_data)	207
-bld_management_2	10017400	void bld_management_2(void * building_data)	202
-gm_AllocBuilding	100174d0	byte * gm_AllocBuilding(byte building_type, ushort owner_id)	959
-bld_management_3	10017910	void bld_management_3(void * building_data)	145
-bld_get_type	100179b0	uint32_t bld_get_type(uint32_t building_id)	108
-bld_get_player_building	10017a70	char * bld_get_player_building(int player_id)	62
-bld_is_residence	10017ab0	byte * bld_is_residence(byte * building_data)	74
-bld_set_owner	10017b00	void bld_set_owner(void * building_data, uint16_t owner_id, uint32_t new_owner_id)	320
-gm_AllocRoom	10017c40	ushort * gm_AllocRoom(byte * building_data, uint room_type)	742
+gm_allocObject	10016760	ushort * gm_allocObject(uint32_t parent_id, uint object_type, undefined4 flags)	930
+gm_addObject	10016cd0	ushort * gm_addObject(uint32_t parent_id, uint object_id, int count)	272
+gm_subObject	10016de0	int gm_subObject(uint32_t parent_id, uint32_t object_id, int count)	186
+gm_removeObjectNoKill	10016ea0	int gm_removeObjectNoKill(uint32_t parent_id, uint32_t object_id, int count)	211
+bld_getNext	10016f80	byte * bld_getNext(void)	346
+gm_findObject2	100170e0	byte * gm_findObject2(int filter_flags)	267
+gm_getFreeBuildingSlot	10017210	char * gm_getFreeBuildingSlot(void)	39
+gm_freeBuilding	10017240	int gm_freeBuilding(void * building_data)	167
+bld_manage	10017330	void bld_manage(void * building_data)	207
+bld_manage2	10017400	void bld_manage2(void * building_data)	202
+gm_allocBuilding	100174d0	byte * gm_allocBuilding(byte building_type, ushort owner_id)	959
+bld_manage3	10017910	void bld_manage3(void * building_data)	145
+bld_getType	100179b0	uint32_t bld_getType(uint32_t building_id)	108
+bld_getPlayerBuilding	10017a70	char * bld_getPlayerBuilding(int player_id)	62
+bld_isResidence	10017ab0	byte * bld_isResidence(byte * building_data)	74
+bld_setOwner	10017b00	void bld_setOwner(void * building_data, uint16_t owner_id, uint32_t new_owner_id)	320
+gm_allocRoom	10017c40	ushort * gm_allocRoom(byte * building_data, uint room_type)	742
 obj_remove_from_list_4	10017f30	int obj_remove_from_list_4(void * building_data, uint32_t object_id)	35
 obj_detach_from_parent	10017f60	void obj_detach_from_parent(void * object_data)	36
 amt_remove_player_wrapper	10017f90	void amt_remove_player_wrapper(void * player_data)	23
-gm_KillSpieler	10017fb0	void gm_KillSpieler(uint32_t player_id, int cleanup_type)	278
-remove_all_players	100180d0	void remove_all_players(void)	81
-gm_is_player_in_state	10018130	int gm_is_player_in_state(void * player_data)	32
-gm_is_player_in_state_2	10018150	int gm_is_player_in_state_2(uint32_t state_id)	34
-gm_get_player_attribute	100181a0	uint8_t gm_get_player_attribute(uint32_t player_id, int attribute_type)	87
-gm_get_player_class	10018200	uint32_t gm_get_player_class(uint32_t player_type)	123
-gm_get_player_level	10018330	int gm_get_player_level(uint32_t player_type)	276
-gm_get_random_player_attribute	10018450	uint8_t gm_get_random_player_attribute(uint8_t base_value)	78
-gm_get_player_by_id	100184a0	undefined2 * gm_get_player_by_id(int player_id)	56
-gm_GetPlayerResidence	100184e0	undefined2 * gm_GetPlayerResidence(int player_data)	66
-gm_ChangePlayerIdentity	10018530	uint32_t gm_ChangePlayerIdentity(uint32_t player_id_1, uint32_t player_id_2)	800
-gm_AllocPlayer	10018850	uint16_t gm_AllocPlayer(uint32_t player_type, uint32_t father_id, uint32_t mother_id, void * player_data, void * building_data, uint8_t gender, uint32_t age, int init_type)	3689
-bld_get_item_count	100196c0	int bld_get_item_count(uint32_t building_id, uint32_t item_id)	81
-gm_CalculateItemValue	10019720	float gm_CalculateItemValue(uint32_t item_id, uint32_t quantity)	396
+gm_killPlayer	10017fb0	void gm_killPlayer(uint32_t player_id, int cleanup_type)	278
+gm_resetPlayers	100180d0	void gm_resetPlayers(void)	81
+gm_isPlayerInState	10018130	int gm_isPlayerInState(void * player_data)	32
+gm_isPlayerInState2	10018150	int gm_isPlayerInState2(uint32_t state_id)	34
+gm_getPlayerAttribute	100181a0	uint8_t gm_getPlayerAttribute(uint32_t player_id, int attribute_type)	87
+gm_getPlayerClass	10018200	uint32_t gm_getPlayerClass(uint32_t player_type)	123
+gm_getPlayerLevel	10018330	int gm_getPlayerLevel(uint32_t player_type)	276
+gm_getRandomPlayerAttribute	10018450	uint8_t gm_getRandomPlayerAttribute(uint8_t base_value)	78
+gm_getPlayerByID	100184a0	undefined2 * gm_getPlayerByID(int player_id)	56
+gm_getPlayerResidence	100184e0	undefined2 * gm_getPlayerResidence(int player_data)	66
+gm_changePlayerIdentity	10018530	uint32_t gm_changePlayerIdentity(uint32_t player_id_1, uint32_t player_id_2)	800
+gm_allocPlayer	10018850	uint16_t gm_allocPlayer(uint32_t player_type, uint32_t father_id, uint32_t mother_id, void * player_data, void * building_data, uint8_t gender, uint32_t age, int init_type)	3689
+bld_getItemCount	100196c0	int bld_getItemCount(uint32_t building_id, uint32_t item_id)	81
+gm_calculateItemValue	10019720	float gm_calculateItemValue(uint32_t item_id, uint32_t quantity)	396
 itm_management	100198b0	void itm_management(void * building_data)	355
-bld_get_object_count	10019a20	int bld_get_object_count(void * building_data)	74
+bld_getObjectCount	10019a20	int bld_getObjectCount(void * building_data)	74
 obj_management_3	10019a70	uint32_t obj_management_3(void * building_data)	102
-gm_GetPlayerSpouse	10019ae0	undefined2 * gm_GetPlayerSpouse(undefined2 * player_data)	82
-gm_get_player_child	10019b40	uint16_t gm_get_player_child(void * player_data)	62
-gm_GetPlayerParent	10019b80	int gm_GetPlayerParent(void * player_data)	83
-gm_get_player_sibling	10019be0	int gm_get_player_sibling(ushort player_id)	124
-gm_get_player_residence_2	10019c60	undefined2 * gm_get_player_residence_2(int player_id)	98
-gm_GetBuildingItemCount	10019cd0	int gm_GetBuildingItemCount(void * item_data, void * object_data)	48
-bld_get_inventory_size	10019d00	int bld_get_inventory_size(void * building_data)	39
-gm_eval_SlotVoll	10019d30	int gm_eval_SlotVoll(void * building_data, uint32_t item_id, int quantity)	407
+gm_getPlayerSpouse	10019ae0	undefined2 * gm_getPlayerSpouse(undefined2 * player_data)	82
+gm_getPlayerChild	10019b40	uint16_t gm_getPlayerChild(void * player_data)	62
+gm_getPlayerParent	10019b80	int gm_getPlayerParent(void * player_data)	83
+gm_getPlayerSibling	10019be0	int gm_getPlayerSibling(ushort player_id)	124
+gm_getPlayerResidence2	10019c60	undefined2 * gm_getPlayerResidence2(int player_id)	98
+gm_getBuildingItemCount	10019cd0	int gm_getBuildingItemCount(void * item_data, void * object_data)	48
+bld_getInventorySize	10019d00	int bld_getInventorySize(void * building_data)	39
+gm_isInventoryFull	10019d30	int gm_isInventoryFull(void * building_data, uint32_t item_id, int quantity)	407
 bld_sell_item_to	10019ed0	uint32_t bld_sell_item_to(void * building_data, uint32_t item_id, uint32_t quantity)	395
-bld_management_4	1001a060	void bld_management_4(void)	97
+bld_manage4	1001a060	void bld_manage4(void)	97
 get_random_number	1001a0d0	int get_random_number(uint16_t max_value)	32
 get_random_float	1001a0f0	float get_random_float(void)	22
 get_random_float_in_range	1001a110	float get_random_float_in_range(void)	48
@@ -517,7 +516,7 @@ CRT_bitwise_clear_range_and_propagate	100215d7	undefined4 CRT_bitwise_clear_rang
 memcpy_12_bytes	10021663	undefined memcpy_12_bytes(int param_1, undefined4 * param_2)	27
 memset_12_bytes_zero	1002167e	undefined memset_12_bytes_zero(undefined4 * param_1)	12
 memcmp_internal	1002168a	undefined4 memcmp_internal(int * param_1)	27
-bitstream_copy	100216a5	undefined bitstream_copy(uint * param_1, uint param_2)	141
+bitstream_copy	100216a5	undefined bitstream_copy(uint * dest_buffer, uint num_bits_to_copy)	141
 float_conversion	10021732	undefined4 float_conversion(ushort * param_1, uint * param_2, int * param_3)	364
 float_conversion_2	1002189e	undefined float_conversion_2(ushort * param_1, uint * param_2)	22
 float_conversion_3	100218b4	undefined float_conversion_3(ushort * param_1, uint * param_2)	22
@@ -563,4 +562,3 @@ CRT__clone_environ	10023714	int CRT__clone_environ(void)	103
 CRT__strchr_l	1002377b	char * CRT__strchr_l(char * _Str, int _Val, int _Locale)	151
 CRT__strdup	10023812	char * CRT__strdup(char * _Src)	43
 RtlUnwind	10023840	thunk void RtlUnwind(PVOID TargetFrame, PVOID TargetIp, PEXCEPTION_RECORD ExceptionRecord, PVOID ReturnValue)	6
-```
