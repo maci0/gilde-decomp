@@ -1,4 +1,4 @@
-| Game Version                                | Main EXE                                       | Notes                                                                        | Release Date   | Media   | Identifier                            |
+| Game Version                                | Binaries                                       | Notes                                                                        | Release Date   | Media   | Identifier                            |
 |:--------------------------------------------|:-----------------------------------------------|:-----------------------------------------------------------------------------|:---------------|:--------|:--------------------------------------|
 | BASE Edition V1.0 (DE/DE, Retail, CD)       |            | Original retail DE release; no TL.exe or Server.dll observed in early builds | 2002-11-14     | cd      | gilde-base-v1.0-de-de-retail-cd       |
 | BASE Edition V1.0 (EN/UK, Retail, CD)       | | Early JoWooD UK release; renamed main EXE; no TL or server files present     | 2002-11-29     | cd      | gilde-base-v1.0-en-uk-retail-cd       |
