@@ -44,3 +44,4 @@
 | EXP Edition V2.0 (DE/DE, Retail, ISO)       |              |                                                                              | nan            | iso     | gilde-exp-v2.0-de-de-retail-iso       |
 | DEMO Edition V0.99 (EN/INT, Beta, DIGITAL)  |             |                                                                              | nan            | digital | gilde-demo-v0.99-en-int-beta-digital  |
 | BASE Edition V1.01 (DE/DE, Redump, CD)      |          |                                                                              | nan            | cd      | gilde-base-v1.01-de-de-redump-cd      |
+| BASE Edition V1.01 (EN/US, Redump, CD)      |          |     http://redump.org/disc/102804/ same as ???                                                                         | 2023-03-25            | [cd/redump](https://archive.org/details/europa-1400-the-guild]      | gilde-base-v1.01-en-us-redump-cd      |
