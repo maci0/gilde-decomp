@@ -18,6 +18,7 @@
 | dist      | `retail`, `steam`, `gog`, `coverdisk`, `beta`, `iso`, `redump` | Distribution method |
 | media     | `cd`, `dvd`, `digital`, `bin`, `exe` | Format or physical medium                                            |
 
+## Known Versions
 
 | Game Version                                | Binaries                                       | Notes                                                                        | Release Date   | Media   | Identifier                            |
 |:--------------------------------------------|:-----------------------------------------------|:-----------------------------------------------------------------------------|:---------------|:--------|:--------------------------------------|
