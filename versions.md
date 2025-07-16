@@ -1,3 +1,24 @@
+# 📦 Europa 1400: The Guild – Version Identification & Preservation Schema
+
+## 🧱 Naming Format
+
+```
+<series>-<edition>-<patch>-<lang>-<region>-<dist>-<media>
+```
+
+## 📚 Components Explained
+
+| Component | Example                        | Description                                                                 |
+|-----------|--------------------------------|-----------------------------------------------------------------------------|
+| series    | `gilde`                        | Always `gilde` for this project (short, consistent tag)                    |
+| edition   | `base`, `gold`, `exp`, `demo`  | Game edition: base game, gold (exp+base), expansion standalone, demo       |
+| patch     | `v1.03`, `v2.06`, `v1.05b3`     | Precise patch version (can include `b` for beta if applicable)             |
+| lang      | `de`, `en`, `fr`, `ru`         | Primary language of the build                                               |
+| region    | `de`, `us`, `uk`, `eu`, `ru`, `int` | Region or market for release (or `int` if international/unknown)    |
+| dist      | `retail`, `steam`, `gog`, `coverdisk`, `beta`, `iso`, `redump` | Distribution method |
+| media     | `cd`, `dvd`, `digital`, `bin`, `exe` | Format or physical medium                                            |
+
+
 | Game Version                                | Binaries                                       | Notes                                                                        | Release Date   | Media   | Identifier                            |
 |:--------------------------------------------|:-----------------------------------------------|:-----------------------------------------------------------------------------|:---------------|:--------|:--------------------------------------|
 | BASE Edition V1.0 (DE/DE, Retail, CD)       |            | Original retail DE release; no TL.exe or Server.dll observed in early builds | 2002-11-14     | cd      | gilde-base-v1.0-de-de-retail-cd       |
